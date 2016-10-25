@@ -5,7 +5,9 @@
 Process a list of S4 expressionSet objects.
 }
 \description{
-A wrapper function for the post-processing function processExpressionSet() on a list of S4 expressionSet objects. This function is run after initial dataset normalization, such as quantile normalization on microarray datasets.
+A wrapper function for the post-processing function processExpressionSet() on
+a list of S4 expressionSet objects. This function is run after initial dataset
+normalization, such as quantile normalization on microarray datasets.
 }
 \usage{
 processExpressionSetList(exprSetList, outputFileDirectory = "./", 
@@ -17,20 +19,30 @@ numTopVarGenes, minVarPercentile, maxVarPercentile = 1, minVar)
 List of S4 expression sets.
 }
   \item{outputFileDirectory}{
-Output file directory for messages that print status of post-processing the ExpressionSets.
+Output file directory for messages that print status of post-processing the
+ExpressionSets.
 }
   \item{minVarPercentile}{
-Minimum variance percentile. Must be provided in conjunction with maxVarPercentile to use percentiles to threshold genes.
+Minimum variance percentile. Must be provided in conjunction with
+maxVarPercentile to use percentiles to threshold genes.
 }
   \item{maxVarPercentile}{
-Maximum variance percentile. Defaul is 1, i.e. 1\%. Must be provided in conjunction with minVarPercentile to use percentiles to threshold genes.
+Maximum variance percentile. Defaul is 1, i.e. 1\%. Must be provided in
+conjunction with minVarPercentile to use percentiles to threshold genes.
 }
 
   \item{minVar}{
-If maxVar is provided, as opposed to minVarPercentile and maxVarPercentile, genes are removed that are below a certain variance magnitude. This is helpful before running certain algorithms, such as the popular Combat batch normalization technique, that can throw errors if genes with extremely low variances are in the data matrix. May be used in conjunction with maxVar or in isolation.
+If maxVar is provided, as opposed to minVarPercentile and maxVarPercentile,
+genes are removed that are below a certain variance magnitude. This is helpful
+before running certain algorithms, such as the popular Combat batch
+normalization technique, that can throw errors if genes with extremely low
+variances are in the data matrix. May be used in conjunction with maxVar or
+in isolation.
 }
   \item{numTopVarGenes}{
-A numeric value indicating the number of genes (features) to select; the function will only take this number of genes that have the highest variance across all genes.
+A numeric value indicating the number of genes (features) to select; the
+function will only take this number of genes that have the highest variance
+across all genes.
 }
 }
 

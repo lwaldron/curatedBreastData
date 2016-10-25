@@ -1,16 +1,15 @@
 Package: curatedBreastData
 Type: Package
-Title: Curated breast gene expression data with survival and treatment
-        information
-Version: 2.1.0
-Date: 2015-03-02
+Title: Curated breast cancer gene expression data with survival and
+        treatment information
+Version: 1.99.0
+Date: 2016-10-15
 Author: Katie Planey
 Maintainer: Katie Planey <katie.planey@gmail.com>
 Depends: R (>= 3.0.0), ggplot2, impute, XML, Biobase, BiocStyle
-biocViews: GeneExpression, Microarray, ExperimentData, ReproducibleResearch
-Description: Curated breast cancer S4 ExpresionSet datasets that all
-        contain at least one type of outcomes variable and treatment
-        information (minimum level: whether they had chemotherapy and
-        whether they had hormonal therapy).  Includes code to
-        post-process these datasets.
+Imports: methods, stats
+biocViews: ExperimentData, GeneExpression
+Description: Curated human breast cancer tissue S4 ExpresionSet datasets that all contain at least one type of outcomes variable and treatment information (minimum level: whether they had chemotherapy and whether they had hormonal therapy).  Includes code to post-process these datasets.
 License: GPL (>= 2)
+NeedsCompilation: no
+Packaged: 2016-10-17 16:25:08 UTC; catherineplanay
