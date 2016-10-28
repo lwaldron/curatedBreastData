@@ -1,4 +1,3 @@
-
 processExpressionSetList <- function(exprSetList,outputFileDirectory="./",
                                      numTopVarGenes,minVarPercentile,maxVarPercentile=1,minVar){
   
@@ -55,13 +54,19 @@ processExpressionSet <- function(exprSet,outputFileDirectory="./",
           knnFractionSize=.01,fractionSampleNAcutoff=.005,
          fractionGeneNAcutoff = .01,exprIndex="expr",classIndex="phenoData",
          sampleCol=TRUE,returnErrorRate=FALSE)
-  
-  exprs(exprSet) <- tmp$exprFilterImpute  
-  featureNames(exprSet@assayData) <- c(1:length(tmp$keysFilterImpute))
-   #need a data.frame and not cbind: otherwise coerces 
-  #gene symbols into numeric data type.
-  fData <- data.frame(c(1:length(tmp$keysFilterImpute)), tmp$keysFilterImpute)
-  colnames(fData) <- c("number","gene_symbol")
+    
+    exprSet <- new("ExpressionSet", assayData = assayDataNew(exprs=new("matrix")), 
+                   phenoData = new("AnnotatedDataFrame"), 
+                   featureData = new("AnnotatedDataFrame"), 
+                   experimentData = new("MIAME"), annotation = character(0))
+    
+    tmpExpr <- data.matrix(tmp$exprFilterImpute)
+    exprSet@assayData <- assayDataNew(exprs =  tmpExpr)
+    featureNames(exprSet@assayData) <- c(1:length(tmp$keysFilterImpute))
+    #need a data.frame and not cbind: otherwise coerces 
+    #gene symbols into numeric data type.
+    fData <- data.frame(c(1:length(tmp$keysFilterImpute)), tmp$keysFilterImpute)
+    colnames(fData) <- c("number","gene_symbol")
     fData(exprSet) <- fData
   #only one set of classes data here - the phenoData, 
   #so will be in first list index.
@@ -70,7 +75,11 @@ processExpressionSet <- function(exprSet,outputFileDirectory="./",
   #must also set global featureNames to updated keys, not just featureData.
   #otheriwse won't return a valid ExpressionObject.
   featureNames(exprSet@featureData) <- c(1:length(tmp$keysFilterImpute))
-
+    # #may need to re-set protocolData field so dimensions match
+   labelDescription <- rep("Breast cancer human tumor tissue sample", nrow(pData(exprSet)))
+   labelDescription <- data.frame(labelDescription) 
+   rownames(labelDescription) <- rownames(pData(exprSet))
+   protocolData(exprSet) <- AnnotatedDataFrame(labelDescription)
   if(!validObject(exprSet)){
     
     warning("\nYour expression set is now not valid.
@@ -84,14 +93,28 @@ assay, pheno and feature slots.\n Proceed through data analysis with caution!")
             keys=fData(exprSet)[[2]], method="highestVariance",
             debug=TRUE,removeNA_keys=TRUE,varMetric = "everything")
 
-  exprs(exprSet) <- data.matrix(tmp$expr)
-  fData <- data.frame(tmp$keys,stringsAsFactors=FALSE)
-  colnames(fData) <- "gene_symbol"
-  fData(exprSet) <- fData
-  #must also set global featureNames to updated keys, not just featureData.
-  #otheriwse won't return a valid ExpressionObject.
-  featureNames(exprSet@featureData) <- tmp$keys
-  featureNames(exprSet@assayData) <- tmp$keys
+
+    phenoData <- pData(exprSet)
+    exprSet <- new("ExpressionSet", assayData = assayDataNew(exprs=new("matrix")), 
+                   phenoData = new("AnnotatedDataFrame"), 
+                   featureData = new("AnnotatedDataFrame"), 
+                   experimentData = new("MIAME"), annotation = character(0))
+    
+    tmpExpr <- data.matrix(tmp$expr)
+    fData <- data.frame(tmp$keys,stringsAsFactors=FALSE)
+    colnames(fData) <- "gene_symbol"
+    fData(exprSet) <- fData
+    pData(exprSet) <- phenoData
+    #must also set global featureNames to updated keys, not just featureData.
+    #otheriwse won't return a valid ExpressionObject.
+    featureNames(exprSet@featureData) <- tmp$keys
+    exprSet@assayData <- assayDataNew(exprs =  tmpExpr)
+    featureNames(exprSet@assayData) <- tmp$keys
+    # #may need to re-set protocolData field so dimensions match
+   labelDescription <- rep("Breast cancer human tumor tissue sample", nrow(pData(exprSet)))
+   labelDescription <- data.frame(labelDescription) 
+   rownames(labelDescription) <- rownames(pData(exprSet))
+   protocolData(exprSet) <- AnnotatedDataFrame(labelDescription)
   
   tmp <-  removeDuplicatedPatients(exprMatrix=exprSet@assayData$exprs, 
           outputFile=paste0(outputFileDirectory,
@@ -99,11 +122,35 @@ assay, pheno and feature slots.\n Proceed through data analysis with caution!")
           varMetric = "everything")
 
   if(ncol(exprs(exprSet))!=ncol(tmp)){
-    
+  
     exprs(exprSet) <- tmp
+    featureN <- featureNames(exprSet@featureData)
     #lost some samples. need to subset the matrix
-    pData(exprSet) <- pData(exprSet)[ ,na.omit(match(colnames(exprs(exprSet)),
+    phenoData <- pData(exprSet)[ ,na.omit(match(colnames(tmp),
                                     rownames(pData(exprSet))))]
+    fData <- fData(exprSet)
+    exprSet <- new("ExpressionSet", assayData = assayDataNew(exprs=new("matrix")), 
+                   phenoData = new("AnnotatedDataFrame"), 
+                   featureData = new("AnnotatedDataFrame"), 
+                   experimentData = new("MIAME"), annotation = character(0))
+
+    fData(exprSet) <- fData
+    pData(exprSet) <- phenoData
+    #must also set global featureNames to updated keys, not just featureData.
+    #otheriwse won't return a valid ExpressionObject.
+    featureNames(exprSet@featureData) <- featureN
+    exprSet@assayData <- assayDataNew(exprs =  tmp)
+    featureNames(exprSet@assayData) <- featureN
+    # #may need to re-set protocolData field so dimensions match
+   labelDescription <- rep("Breast cancer human tumor tissue sample", nrow(pData(exprSet)))
+   labelDescription <- data.frame(labelDescription) 
+   rownames(labelDescription) <- rownames(pData(exprSet))
+   protocolData(exprSet) <- AnnotatedDataFrame(labelDescription)
+        # #may need to re-set protocolData field so dimensions match
+   labelDescription <- rep("Breast cancer human tumor tissue sample", nrow(pData(exprSet)))
+   labelDescription <- data.frame(labelDescription) 
+   rownames(labelDescription) <- rownames(pData(exprSet))
+   protocolData(exprSet) <- AnnotatedDataFrame(labelDescription)
     
   }
 
@@ -119,15 +166,37 @@ assay, pheno and feature slots.\n Proceed through data analysis with caution!")
           varMetric = c("everything"),sampleCol=TRUE,
           numTopVarGenes=numTopVarGenes,plotVarianceHist=FALSE);
     
-    exprs(exprSet) <- data.matrix(tmp$filteredStudy$expr)
+
+       tmpExpr <- data.matrix(tmp$filteredStudy$expr)
+    #if lost some samples. need to subset the matrix
+    phenoData <- pData(exprSet)[na.omit(match(colnames(tmpExpr),
+                                    rownames(pData(exprSet)))), ]
+    exprSet <- new("ExpressionSet", assayData = assayDataNew(exprs=new("matrix")), 
+                   phenoData = new("AnnotatedDataFrame"), 
+                   featureData = new("AnnotatedDataFrame"), 
+                   experimentData = new("MIAME"), annotation = character(0))
+
     fData <- data.frame(tmp$filteredStudy$keys,stringsAsFactors=FALSE)
     colnames(fData) <- "gene_symbol"
     fData(exprSet) <- fData
+    pData(exprSet) <- phenoData
     #must also set global featureNames to updated keys, not just featureData.
     #otheriwse won't return a valid ExpressionObject.
     featureNames(exprSet@featureData) <- tmp$filteredStudy$keys
+    exprSet@assayData <- assayDataNew(exprs =  tmpExpr)
     featureNames(exprSet@assayData) <- tmp$filteredStudy$keys
-    
+   
+
+    # #may need to re-set protocolData field so dimensions match
+   labelDescription <- rep("Breast cancer human tumor tissue sample", nrow(pData(exprSet)))
+   labelDescription <- data.frame(labelDescription) 
+   rownames(labelDescription) <- rownames(pData(exprSet))
+   protocolData(exprSet) <- AnnotatedDataFrame(labelDescription)
+        # #may need to re-set protocolData field so dimensions match
+   labelDescription <- rep("Breast cancer human tumor tissue sample", nrow(pData(exprSet)))
+   labelDescription <- data.frame(labelDescription) 
+   rownames(labelDescription) <- rownames(pData(exprSet))
+   protocolData(exprSet) <- AnnotatedDataFrame(labelDescription)
     #do quantiles (percentage cut-offs.)
   }else if(!missing(minVarPercentile) && !missing(maxVarPercentile)
            && missing(minVar)){
@@ -139,16 +208,35 @@ assay, pheno and feature slots.\n Proceed through data analysis with caution!")
           "/curatedBreastData_processExpressionSetMessages.txt"),
           varMetric = c("everything"),sampleCol=TRUE,plotVarianceHist=FALSE);
     
-    
-    
-    exprs(exprSet) <- data.matrix(tmp$filteredStudy$expr)
+     tmpExpr <- data.matrix(tmp$filteredStudy$expr)
+    #if lost some samples. need to subset the matrix
+    phenoData <- pData(exprSet)[na.omit(match(colnames(tmpExpr),
+                                    rownames(pData(exprSet)))), ]
+    exprSet <- new("ExpressionSet", assayData = assayDataNew(exprs=new("matrix")), 
+                   phenoData = new("AnnotatedDataFrame"), 
+                   featureData = new("AnnotatedDataFrame"), 
+                   experimentData = new("MIAME"), annotation = character(0))
+
     fData <- data.frame(tmp$filteredStudy$keys,stringsAsFactors=FALSE)
     colnames(fData) <- "gene_symbol"
     fData(exprSet) <- fData
+    pData(exprSet) <- phenoData
     #must also set global featureNames to updated keys, not just featureData.
     #otheriwse won't return a valid ExpressionObject.
     featureNames(exprSet@featureData) <- tmp$filteredStudy$keys
+    exprSet@assayData <- assayDataNew(exprs =  tmpExpr)
     featureNames(exprSet@assayData) <- tmp$filteredStudy$keys
+
+    # #may need to re-set protocolData field so dimensions match
+   labelDescription <- rep("Breast cancer human tumor tissue sample", nrow(pData(exprSet)))
+   labelDescription <- data.frame(labelDescription) 
+   rownames(labelDescription) <- rownames(pData(exprSet))
+   protocolData(exprSet) <- AnnotatedDataFrame(labelDescription)
+        # #may need to re-set protocolData field so dimensions match
+   labelDescription <- rep("Breast cancer human tumor tissue sample", nrow(pData(exprSet)))
+   labelDescription <- data.frame(labelDescription) 
+   rownames(labelDescription) <- rownames(pData(exprSet))
+   protocolData(exprSet) <- AnnotatedDataFrame(labelDescription)
     
   }else if(!missing(minVar)){
     
@@ -158,17 +246,33 @@ assay, pheno and feature slots.\n Proceed through data analysis with caution!")
             "/curatedBreastData_processExpressionSetMessages.txt"),
             varMetric = c("everything"),sampleCol=TRUE,plotVarianceHist=FALSE);
     
-    
-    exprs(exprSet) <- data.matrix(tmp$filteredStudy$expr)
+     tmpExpr <- data.matrix(tmp$filteredStudy$expr)
+    #if lost some samples. need to subset the matrix
+    phenoData <- pData(exprSet)[na.omit(match(colnames(tmpExpr),
+                                    rownames(pData(exprSet)))), ]
+    exprSet <- new("ExpressionSet", assayData = assayDataNew(exprs=new("matrix")), 
+                   phenoData = new("AnnotatedDataFrame"), 
+                   featureData = new("AnnotatedDataFrame"), 
+                   experimentData = new("MIAME"), annotation = character(0))
+
     fData <- data.frame(tmp$filteredStudy$keys,stringsAsFactors=FALSE)
     colnames(fData) <- "gene_symbol"
     fData(exprSet) <- fData
+    pData(exprSet) <- phenoData
     #must also set global featureNames to updated keys, not just featureData.
     #otheriwse won't return a valid ExpressionObject.
-    featureNames(exprSet@featureData) <- tmp$filteredStudy$keys
     featureNames(exprSet@assayData) <- tmp$filteredStudy$keys
+    featureNames(exprSet@featureData) <- tmp$filteredStudy$keys
+    exprSet@assayData <- assayDataNew(exprs =  tmpExpr)
+
+    # #may need to re-set protocolData field so dimensions match
+   labelDescription <- rep("Breast cancer human tumor tissue sample", nrow(pData(exprSet)))
+   labelDescription <- data.frame(labelDescription) 
+   rownames(labelDescription) <- rownames(pData(exprSet))
+   protocolData(exprSet) <- AnnotatedDataFrame(labelDescription)
     
   }
+    
   #test: still a valid expression set??
     if(!validObject(exprSet)){
       
@@ -203,7 +307,7 @@ filterAndImputeSamples <- function(study,studyName = "study",
     
     expr <- t(study[[exprIndex]])
     exprOrig <- t(study[[exprIndex]])
-    warning("dimensions of expression study will be returned transposed: 
+    message("dimensions of expression study will be returned transposed: 
 samples are now the columns for an pxn matrix.")
     
   }  
@@ -221,7 +325,7 @@ samples are now the columns for an pxn matrix.")
   
   totalGen <- dim(expr)[1]
   
-  warning("\nJust a warning: this function assumes your missing values
+  message("\nNote: this function assumes your missing values
   are proper NAs, not \"null\",etc.\n")
   
   gene_fractionNAsamples <- apply(expr,MARGIN=1, 
@@ -400,7 +504,7 @@ file=outputFile,append=TRUE)
     
     cat("finished imputing study ",studyName, "\n",file=outputFile,append=TRUE)
     
-    warning("no list index name for a class/outcomes given,
+    message("no list index name for a class/outcomes given,
     so this will not be returned")
     
     study <- list(expr=exprOrig,exprFilterImpute = exprFilterImpute,
@@ -460,7 +564,7 @@ collapseDupProbes <- function(expr,sampleColNames=colnames(expr),keys,
                                             "complete.obs", "na.or.complete", 
                                             "pairwise.complete.obs")){
   
-  warning("It's best to impute NA values before running this function
+  message("It's best to impute NA values before running this function
 otherwise it may set averages to NA if there is 1 NA present.
 This function just removes any genes whose key is NA.")
   
@@ -483,7 +587,7 @@ This function just removes any genes whose key is NA.")
   
   if(ncol(expr)==1){
     
-    warning("\nOnly 1 sample. May encounter edge cases 
+    message("\nOnly 1 sample. May encounter edge cases 
             when collapsing duplicated probes.")
 
   }
@@ -509,8 +613,9 @@ This function just removes any genes whose key is NA.")
   singles.keys <- names(which(table(keys) == 1))
   singles.ind <- which(keys %in% singles.keys)
   
-  warning("\nYou may get a warning here because key names are duplicated 
-  so it can't use them as row names. That's OK.\n")
+  message("\nYou may get a warning here because key (usually gene) names are
+  duplicated so it can't use them as row names. 
+  That's OK, because we are immediately collapsing them into one feature.\n")
   gems <- data.frame(expr = expr, keys = keys,stringsAsFactors = FALSE)
   #hmm this isn't working...but aren't all the lengths the same now???
   #add data.frame() again to force it into dataframe unless it's one column.
@@ -791,7 +896,7 @@ removeDuplicatedPatients <- function(exprMatrix,
   
   if(length(varMetric)>1){
     
-    warning("defaulting the everything variance metric.")
+    message("defaulting the everything variance metric.")
     varMetric = c("everything")
     
   }
@@ -922,7 +1027,7 @@ filterGenesByVariance <- function(study, plotSaveDir="~/",minVarPercentile,
     
     expr <- t(study[[exprIndex]]);
     
-    warning("dimensions of expression data will be returned transposed: 
+    message("dimensions of expression data will be returned transposed: 
     samples are now the columns for a pxn matrix.");
     
   }
@@ -1082,7 +1187,7 @@ filterGenesByVariance <- function(study, plotSaveDir="~/",minVarPercentile,
     #just take top X varying genes.
     if(any(is.na(geneVar))){
       
-      warning("You have NA values in your gene variances. 
+      message("You have NA values in your gene variances. 
       variances with NA values will not be considered.")
       
     }
@@ -1129,5 +1234,4 @@ filterGenesByVariance <- function(study, plotSaveDir="~/",minVarPercentile,
   return(output);
   
 }
-
 
