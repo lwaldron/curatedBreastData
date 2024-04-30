@@ -1,7 +1,7 @@
 Package: curatedBreastData
 Type: Package
 Title: Curated breast cancer gene expression data with survival and treatment information
-Version: 2.31.0
+Version: 2.32.0
 Date: 2016-10-26
 Author: Katie Planey
 Maintainer: Katie Planey <katie.planey@gmail.com>
