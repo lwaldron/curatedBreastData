@@ -11,5 +11,6 @@ bibentry(
   year = 2013,
   pages = "237--241",
   note = "PMCID: PMC3814460",
+  doi = "10.18129/B9.bioc.curatedBreastData",
   textVersion = "Planey KR, Butte AJ. Database integration of 4923 publicly-available samples of breast cancer molecular and clinical data. AMIA Joint Summits Translational Science Proceedings. 2013;2013:237-241. PMCID: PMC3814460"
 )
