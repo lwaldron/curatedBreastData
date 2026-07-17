@@ -9,3 +9,4 @@
 ^varCal\.txt$
 ^gha_logs_rebase$
 ^logs_rebase\.zip$
+^docs$

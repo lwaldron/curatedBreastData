@@ -8,10 +8,11 @@ template:
 
 reference:
   - title: Data Retrieval
-    desc: Functions to access the curated datasets
+    desc: Functions and data to access the curated datasets
     contents:
       - getCuratedBreastDataExprSetList
       - getClinicalData
+      - curatedBreastData_pData
   - title: Data Processing
     desc: Functions to post-process the datasets
     contents:
