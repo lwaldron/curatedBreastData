@@ -45,7 +45,7 @@ curatedBreastDataExprSetList <- getCuratedBreastDataExprSetList(test=TRUE)
 #extra pre-processing.
 outputMatrix <- removeDuplicatedPatients(exprMatrix=
 exprs(curatedBreastDataExprSetList[[1]]), 
-outputFile = "./duplicatedPatientsOutput.txt", varMetric = c("everything"))
+outputFile = tempfile(), varMetric = c("everything"))
 #final dimensions - unchanged in this case with 
 #no samples sharing the same patient ID.
 dim(outputMatrix)

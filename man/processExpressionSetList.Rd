@@ -43,7 +43,7 @@ curatedBreastDataExprSetList <- getCuratedBreastDataExprSetList(test=TRUE)
 #to make them ready for downstream analyses.
 proc_curatedBreastDataExprSetList <- processExpressionSetList(
 exprSetList=curatedBreastDataExprSetList, 
-outputFileDirectory = "./", numTopVarGenes=100)
+outputFileDirectory = tempdir(), numTopVarGenes=100)
 }
 \seealso{
 \code{\link{processExpressionSet}}

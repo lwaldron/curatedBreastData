@@ -24,7 +24,7 @@
 #' #to make them ready for downstream analyses.
 #' proc_curatedBreastDataExprSetList <- processExpressionSetList(
 #' exprSetList=curatedBreastDataExprSetList, 
-#' outputFileDirectory = "./", numTopVarGenes=100)
+#' outputFileDirectory = tempdir(), numTopVarGenes=100)
 #' @export
 processExpressionSetList <- function(exprSetList,outputFileDirectory="./",
                                      numTopVarGenes,minVarPercentile,maxVarPercentile=1,minVar){
@@ -106,7 +106,7 @@ processExpressionSetList <- function(exprSetList,outputFileDirectory="./",
 #' 
 #' post_procExprSet <- processExpressionSet(exprSet=
 #' curatedBreastDataExprSetList[[1]], 
-#' outputFileDirectory = "./",
+#' outputFileDirectory = tempdir(),
 #' minVarPercentile=.75, maxVarPercentile = 1)
 #' @export
 processExpressionSet <- function(exprSet,outputFileDirectory="./",
@@ -391,7 +391,7 @@ pheno and feature slots.\n Proceed through data analysis with caution!")
 #' phenoData=pData(curatedBreastDataExprSetList[[1]]))
 #' 
 #' filteredStudy <- filterAndImputeSamples(study, studyName = "study", 
-#' outputFile = "createTestTrainSetsOutput.txt", impute = TRUE, 
+#' outputFile = tempfile(), impute = TRUE, 
 #' knnFractionSize = 0.01, fractionSampleNAcutoff = 0.005, 
 #' fractionGeneNAcutoff = 0.01, exprIndex = "expr", classIndex="phenoData",
 #' sampleCol = TRUE, returnErrorRate = TRUE)
@@ -1058,7 +1058,7 @@ returning the expected mean of rows of expression values for duplicated keys ")
 #' #extra pre-processing.
 #' outputMatrix <- removeDuplicatedPatients(exprMatrix=
 #' exprs(curatedBreastDataExprSetList[[1]]), 
-#' outputFile = "./duplicatedPatientsOutput.txt", varMetric = c("everything"))
+#' outputFile = tempfile(), varMetric = c("everything"))
 #' #final dimensions - unchanged in this case with 
 #' #no samples sharing the same patient ID.
 #' dim(outputMatrix)
@@ -1232,7 +1232,7 @@ removeDuplicatedPatients <- function(exprMatrix,
 #' #take top 100 varying genes
 #' 
 #' filterGeneStudy <- filterGenesByVariance(study, exprIndex = "expr", 
-#' keysIndex = "keys", outputFile = "./varCal.txt", 
+#' keysIndex = "keys", outputFile = tempfile(), 
 #' plotVarianceHist = FALSE,
 #' varMetric = c("everything"), sampleCol = TRUE, numTopVarGenes=100)
 #' 

@@ -40,19 +40,18 @@
 #' https://github.com/kplaney/curatedBreastCancer
 #' @keywords package
 #' @examples
-#' \dontrun{
 #' #load up datasets that are in S4 expressionSet format.
 #' curatedBreastDataExprSetList <- getCuratedBreastDataExprSetList(test=TRUE)
 #' 
 #' #process only the first two datasets to avoid a long-running example:
-#' #take top 5000 genes by variance from each dataset.
+#' #take top 100 genes by variance from each dataset.
 #' proc_curatedBreastDataExprSetList <- processExpressionSetList(exprSetList=
 #' curatedBreastDataExprSetList[1:2], 
-#' outputFileDirectory = "./", numTopVarGenes=5000)
+#' outputFileDirectory = tempdir(), numTopVarGenes=100)
 #' 
 #' #now we have processed expression matrices,
-#' #each with the top 5000 genes by variance 
-#' }
+#' #each with the top 100 genes by variance 
+
 
 
 #' @title curatedBreastData_pData
