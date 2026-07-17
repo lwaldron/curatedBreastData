@@ -68,7 +68,6 @@ It is highly suggested you use filterAndImputeSamples() beforehand to remove any
 NA values, to avoid -Inf or NA variance calculations.
 }
 \examples{
-\dontrun{
 #load up our datasets
 curatedBreastDataExprSetList <- getCuratedBreastDataExprSetList(test=TRUE)
 
@@ -78,7 +77,7 @@ curatedBreastDataExprSetList <- getCuratedBreastDataExprSetList(test=TRUE)
 #highestVariance calculation make take a minute to run.
 #create study list object. 
 study <- list(expr=exprs(curatedBreastDataExprSetList[[1]]),
-keys=curatedBreastDataExprSetList[[1]]@featureData$gene_symbol)
+keys=fData(curatedBreastDataExprSetList[[1]])[, "gene_symbol"])
 #take top 100 varying genes
 
 filterGeneStudy <- filterGenesByVariance(study, exprIndex = "expr", 
@@ -88,7 +87,6 @@ varMetric = c("everything"), sampleCol = TRUE, numTopVarGenes=100)
 
 #names of output
 names(filterGeneStudy)
-}
 }
 \author{
 Katie Planey <katie.planey@gmail.com>

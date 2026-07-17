@@ -16,18 +16,15 @@
 #' @author Katie Planey <katie.planey@@gmail.com>
 #' @seealso \code{\link{processExpressionSet}} 
 #' @examples
-#' \dontrun{
-#' #warning: takes a while to run! you're processing all datasets in the package!
 #' #load up our datasets
 #' curatedBreastDataExprSetList <- getCuratedBreastDataExprSetList(test=TRUE)
 #' 
-#' #just take top 5000 genes by variance
+#' #just take top 100 genes by variance
 #' #this will post-process every dataset in the package
 #' #to make them ready for downstream analyses.
 #' proc_curatedBreastDataExprSetList <- processExpressionSetList(
 #' exprSetList=curatedBreastDataExprSetList, 
-#' outputFileDirectory = "./", numTopVarGenes=5000)
-#' }
+#' outputFileDirectory = "./", numTopVarGenes=100)
 #' @export
 processExpressionSetList <- function(exprSetList,outputFileDirectory="./",
                                      numTopVarGenes,minVarPercentile,maxVarPercentile=1,minVar){
@@ -99,22 +96,18 @@ processExpressionSetList <- function(exprSetList,outputFileDirectory="./",
 #'
 #' @author Katie Planey <katie.planey@@gmail.com>
 #' @examples
-#' \dontrun{
 #' #load up our datasets
 #' curatedBreastDataExprSetList <- getCuratedBreastDataExprSetList(test=TRUE)
 #' 
-#' #just perform on one dataset as an example, GSE9893. 
-#' #This dataset does have NA values, so
-#' #you'll see the impute.knn progress printed to the screen.
-#' #also take only genes that fall in 
+#' #just perform on one dataset as an example, GSE1379. 
+#' #take only genes that fall in 
 #' #the variance percentiles between .75 and 1 
 #' #(i.e. top 75th percentile genes by variance.)
 #' 
 #' post_procExprSet <- processExpressionSet(exprSet=
-#' curatedBreastDataExprSetList[[5]], 
+#' curatedBreastDataExprSetList[[1]], 
 #' outputFileDirectory = "./",
 #' minVarPercentile=.75, maxVarPercentile = 1)
-#' }
 #' @export
 processExpressionSet <- function(exprSet,outputFileDirectory="./",
                                  numTopVarGenes,minVarPercentile,
@@ -388,17 +381,14 @@ pheno and feature slots.\n Proceed through data analysis with caution!")
 #'
 #' @author Katie Planey <katie.planey@@gmail.com>
 #' @examples
-#' \dontrun{
 #' #load up our datasets
 #' curatedBreastDataExprSetList <- getCuratedBreastDataExprSetList(test=TRUE)
 #' 
-#' #just perform on one dataset as an example, GSE9893. This dataset does have NA
-#' #values.
-#' #highestVariance calculation make take a minute to run.
+#' #just perform on one dataset as an example, GSE1379. 
 #' #create study list object. 
-#' study <- list(expr=exprs(curatedBreastDataExprSetList[[5]]),
-#' keys=curatedBreastDataExprSetList[[2]]@featureData$gene_symbol,
-#' phenoData=pData(curatedBreastDataExprSetList[[5]]))
+#' study <- list(expr=exprs(curatedBreastDataExprSetList[[1]]),
+#' keys=fData(curatedBreastDataExprSetList[[1]])[, "gene_symbol"],
+#' phenoData=pData(curatedBreastDataExprSetList[[1]]))
 #' 
 #' filteredStudy <- filterAndImputeSamples(study, studyName = "study", 
 #' outputFile = "createTestTrainSetsOutput.txt", impute = TRUE, 
@@ -410,7 +400,6 @@ pheno and feature slots.\n Proceed through data analysis with caution!")
 #' names(filteredStudy)
 #' #what is the imputation error fraction (rate)?
 #' filteredStudy$errorRate
-#' }
 #' @export
 filterAndImputeSamples <- function(study,studyName = "study",
                                   outputFile = "createTestTrainSetsOutput.txt",
@@ -701,7 +690,6 @@ file=outputFile,append=TRUE)
 #'
 #' @author Katie Planey <katie.planey@@gmail.com>
 #' @examples
-#' \dontrun{
 #' #load up our datasets
 #' curatedBreastDataExprSetList <- getCuratedBreastDataExprSetList(test=TRUE)
 #' 
@@ -709,12 +697,11 @@ file=outputFile,append=TRUE)
 #' #This dataset has no NAs already but does have duplicated genes
 #' #highestVariance calculation make take a minute to run.
 #' collapsedData <- collapseDupProbes(expr=exprs(curatedBreastDataExprSetList[[2]]),  
-#' keys=curatedBreastDataExprSetList[[2]]@featureData$gene_symbol, 
+#' keys=fData(curatedBreastDataExprSetList[[2]])[, "gene_symbol"], 
 #' method = c("highestVariance"), debug = TRUE, removeNA_keys = TRUE, 
 #' varMetric = c("everything"))
 #' #look at names of outputs
 #' names(collapsedData)
-#' }
 #' @export
 collapseDupProbes <- function(expr,sampleColNames=colnames(expr),keys, 
                               method=c("average","highestVariance"),debug=TRUE,
@@ -1232,7 +1219,6 @@ removeDuplicatedPatients <- function(exprMatrix,
 #' It is highly suggested you use filterAndImputeSamples() beforehand to remove any
 #' NA values, to avoid -Inf or NA variance calculations.
 #' @examples
-#' \dontrun{
 #' #load up our datasets
 #' curatedBreastDataExprSetList <- getCuratedBreastDataExprSetList(test=TRUE)
 #' 
@@ -1242,7 +1228,7 @@ removeDuplicatedPatients <- function(exprMatrix,
 #' #highestVariance calculation make take a minute to run.
 #' #create study list object. 
 #' study <- list(expr=exprs(curatedBreastDataExprSetList[[1]]),
-#' keys=curatedBreastDataExprSetList[[1]]@@featureData$gene_symbol)
+#' keys=fData(curatedBreastDataExprSetList[[1]])[, "gene_symbol"])
 #' #take top 100 varying genes
 #' 
 #' filterGeneStudy <- filterGenesByVariance(study, exprIndex = "expr", 
@@ -1252,7 +1238,6 @@ removeDuplicatedPatients <- function(exprMatrix,
 #' 
 #' #names of output
 #' names(filterGeneStudy)
-#' }
 #' @export
 filterGenesByVariance <- function(study, plotSaveDir="~/",minVarPercentile,
                                   maxVarPercentile=1,maxVar,minVar,

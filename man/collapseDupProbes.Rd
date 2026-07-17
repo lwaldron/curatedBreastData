@@ -40,7 +40,6 @@ in the expression matrix "expr"), or take the keys that has the highest variance
 across the set of duplicated keys.
 }
 \examples{
-\dontrun{
 #load up our datasets
 curatedBreastDataExprSetList <- getCuratedBreastDataExprSetList(test=TRUE)
 
@@ -48,12 +47,11 @@ curatedBreastDataExprSetList <- getCuratedBreastDataExprSetList(test=TRUE)
 #This dataset has no NAs already but does have duplicated genes
 #highestVariance calculation make take a minute to run.
 collapsedData <- collapseDupProbes(expr=exprs(curatedBreastDataExprSetList[[2]]),  
-keys=curatedBreastDataExprSetList[[2]]@featureData$gene_symbol, 
+keys=fData(curatedBreastDataExprSetList[[2]])[, "gene_symbol"], 
 method = c("highestVariance"), debug = TRUE, removeNA_keys = TRUE, 
 varMetric = c("everything"))
 #look at names of outputs
 names(collapsedData)
-}
 }
 \author{
 Katie Planey <katie.planey@gmail.com>

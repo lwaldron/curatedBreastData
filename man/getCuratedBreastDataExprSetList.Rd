@@ -30,11 +30,10 @@ batch identification and how the package developer chose to create the batch
 name string.
 }
 \examples{
-curatedBreastDataExprSetList <- getCuratedBreastDataExprSetList(test=TRUE)
-#what are all the names of the studies?
+curatedBreastDataExprSetList <- getCuratedBreastDataExprSetList(test = TRUE)
+# what are all the names of the studies?
 names(curatedBreastDataExprSetList)
-#what is the dimension of the gene 
-#expression matrix for study GSE2034?
+# what is the dimension of the gene expression matrix for study GSE2034?
 dim(exprs(curatedBreastDataExprSetList$study_2034_GPL96_all))
 }
 \references{
