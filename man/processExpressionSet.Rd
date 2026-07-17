@@ -45,22 +45,18 @@ filterGenesByVariance(). It is is run after initial dataset normalization, such
 as quantile normalization on microarray datasets.
 }
 \examples{
-\dontrun{
 #load up our datasets
 curatedBreastDataExprSetList <- getCuratedBreastDataExprSetList(test=TRUE)
 
-#just perform on one dataset as an example, GSE9893. 
-#This dataset does have NA values, so
-#you'll see the impute.knn progress printed to the screen.
-#also take only genes that fall in 
+#just perform on one dataset as an example, GSE1379. 
+#take only genes that fall in 
 #the variance percentiles between .75 and 1 
 #(i.e. top 75th percentile genes by variance.)
 
 post_procExprSet <- processExpressionSet(exprSet=
-curatedBreastDataExprSetList[[5]], 
+curatedBreastDataExprSetList[[1]], 
 outputFileDirectory = "./",
 minVarPercentile=.75, maxVarPercentile = 1)
-}
 }
 \author{
 Katie Planey <katie.planey@gmail.com>

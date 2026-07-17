@@ -55,17 +55,14 @@ A method that removes samples or genes with high NA rates and then KNN imputes
 remaining missing values.
 }
 \examples{
-\dontrun{
 #load up our datasets
 curatedBreastDataExprSetList <- getCuratedBreastDataExprSetList(test=TRUE)
 
-#just perform on one dataset as an example, GSE9893. This dataset does have NA
-#values.
-#highestVariance calculation make take a minute to run.
+#just perform on one dataset as an example, GSE1379. 
 #create study list object. 
-study <- list(expr=exprs(curatedBreastDataExprSetList[[5]]),
-keys=curatedBreastDataExprSetList[[2]]@featureData$gene_symbol,
-phenoData=pData(curatedBreastDataExprSetList[[5]]))
+study <- list(expr=exprs(curatedBreastDataExprSetList[[1]]),
+keys=fData(curatedBreastDataExprSetList[[1]])[, "gene_symbol"],
+phenoData=pData(curatedBreastDataExprSetList[[1]]))
 
 filteredStudy <- filterAndImputeSamples(study, studyName = "study", 
 outputFile = "createTestTrainSetsOutput.txt", impute = TRUE, 
@@ -77,7 +74,6 @@ sampleCol = TRUE, returnErrorRate = TRUE)
 names(filteredStudy)
 #what is the imputation error fraction (rate)?
 filteredStudy$errorRate
-}
 }
 \author{
 Katie Planey <katie.planey@gmail.com>

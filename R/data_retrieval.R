@@ -19,13 +19,11 @@
 #' @return A list, with each index containing an ExpressionSet object from a specific study, and potentially a specific batch.
 #' @references Planey, Butte. Database integration of 4923 publicly-available samples of breast cancer molecular and clinical data. AMIA Joint Summits Translational Science Proceedings. (2003) PMC3814460
 #' @examples
-#' \dontrun{
 #' curatedBreastDataExprSetList <- getCuratedBreastDataExprSetList(test = TRUE)
 #' # what are all the names of the studies?
 #' names(curatedBreastDataExprSetList)
 #' # what is the dimension of the gene expression matrix for study GSE2034?
 #' dim(exprs(curatedBreastDataExprSetList$study_2034_GPL96_all))
-#' }
 #' @importFrom BiocFileCache BiocFileCache bfcquery bfcadd bfcrpath
 #' @importFrom utils untar
 #' @export

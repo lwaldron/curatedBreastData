@@ -21,7 +21,7 @@ Suggestions for new datasets to add are always welcome; the maintainer does aim
 to only include datasets that have minimal treatment and some form of survival
 (and/or treatment response) to allow for richer analyses. Raw data is always
 preferred in order to control normalization schemes. Normalization details for
-each dataset can be found the the Github repo in the References section.
+each dataset can be found in the GitHub repo in the References section.
 }
 \examples{
 \dontrun{
@@ -46,7 +46,7 @@ Planey, Butte. Database integration of 4923 publicly-available samples of breast
 cancer molecular and clinical data. AMIA Joint Summits Translational
 Science Proceedings. (2003) PMC3814460
 
-Github repo with code, further documentation on datasets and baseline
+GitHub repo with code, further documentation on datasets and baseline
 normalization schemes, and database quality checks: 
 https://github.com/kplaney/curatedBreastCancer
 }

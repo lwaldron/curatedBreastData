@@ -7,10 +7,10 @@
 \title{Curated breast gene expression data with survival and treatment information}
 \description{
 34 manually curated high-quality gene expression microarray datasets with 
-advanced beast cancer samples collected from GEO. All datasets provided have 
+advanced breast cancer samples collected from GEO. All datasets provided have 
 some form of survival and treatment information, and all such clinical variables
-are semantically normalized across all datasest for easy analyses across 
-datasets.  Authors of the Pubmed article linked to each GEO dataset was
+are semantically normalized across all datasets for easy analyses across 
+datasets. Authors of the PubMed article linked to each GEO dataset were
 contacted in an effort to collect as much extra clinical data as possible.
 See vignette and publication reference from AMIA Translational Science Joint
 Summits presentation in 2013 for more details on how this data was curated.

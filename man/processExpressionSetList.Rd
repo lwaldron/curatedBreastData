@@ -35,18 +35,15 @@ a list of S4 expressionSet objects. This function is run after initial dataset
 normalization, such as quantile normalization on microarray datasets.
 }
 \examples{
-\dontrun{
-#warning: takes a while to run! you're processing all datasets in the package!
 #load up our datasets
 curatedBreastDataExprSetList <- getCuratedBreastDataExprSetList(test=TRUE)
 
-#just take top 5000 genes by variance
+#just take top 100 genes by variance
 #this will post-process every dataset in the package
 #to make them ready for downstream analyses.
 proc_curatedBreastDataExprSetList <- processExpressionSetList(
 exprSetList=curatedBreastDataExprSetList, 
-outputFileDirectory = "./", numTopVarGenes=5000)
-}
+outputFileDirectory = "./", numTopVarGenes=100)
 }
 \seealso{
 \code{\link{processExpressionSet}}
