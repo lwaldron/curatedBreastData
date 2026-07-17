@@ -1,10 +1,10 @@
 #' Curated breast gene expression data with survival and treatment information
 #'
 #' 34 manually curated high-quality gene expression microarray datasets with 
-#' advanced beast cancer samples collected from GEO. All datasets provided have 
+#' advanced breast cancer samples collected from GEO. All datasets provided have 
 #' some form of survival and treatment information, and all such clinical variables
-#' are semantically normalized across all datasest for easy analyses across 
-#' datasets.  Authors of the Pubmed article linked to each GEO dataset was
+#' are semantically normalized across all datasets for easy analyses across 
+#' datasets. Authors of the PubMed article linked to each GEO dataset were
 #' contacted in an effort to collect as much extra clinical data as possible.
 #' See vignette and publication reference from AMIA Translational Science Joint
 #' Summits presentation in 2013 for more details on how this data was curated.  
@@ -30,12 +30,12 @@
 #' to only include datasets that have minimal treatment and some form of survival
 #' (and/or treatment response) to allow for richer analyses. Raw data is always
 #' preferred in order to control normalization schemes. Normalization details for
-#' each dataset can be found the the Github repo in the References section.
+#' each dataset can be found in the GitHub repo in the References section.
 #' @references Planey, Butte. Database integration of 4923 publicly-available samples of breast
 #' cancer molecular and clinical data. AMIA Joint Summits Translational
 #' Science Proceedings. (2003) PMC3814460
 #' 
-#' Github repo with code, further documentation on datasets and baseline
+#' GitHub repo with code, further documentation on datasets and baseline
 #' normalization schemes, and database quality checks: 
 #' https://github.com/kplaney/curatedBreastCancer
 #' @keywords package
