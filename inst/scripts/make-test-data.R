@@ -5,9 +5,13 @@
 
 # Load the original data (you must have access to the original large rda files or the downloaded archive)
 message("Loading data...")
+if (!requireNamespace("devtools", quietly = TRUE)) {
+  stop("Package 'devtools' is required to run inst/scripts/make-test-data.R", call. = FALSE)
+}
 devtools::load_all()
-esets <- getCuratedBreastDataExprSetList(test = TRUE) # load from current test set to subset further
-clin <- getClinicalData()
+# Load the full dataset (remote/cache) before subsetting
+esets <- getCuratedBreastDataExprSetList(test = FALSE)
+clin <- getClinicalData(test = FALSE)
 
 # Create a small subset
 message("Subsetting data...")
