@@ -11,6 +11,7 @@ https://doi.org/10.18129/B9.bioc.curatedBreastData
 
 **GitHub Actions:**
 [![R CMD check](https://github.com/waldronlab/curatedBreastData/actions/workflows/ci.yml/badge.svg)](https://github.com/waldronlab/curatedBreastData/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/waldronlab/curatedBreastData/graph/badge.svg)](https://codecov.io/gh/waldronlab/curatedBreastData)
 
 ## Installation
 
