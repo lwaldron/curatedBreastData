@@ -24,15 +24,15 @@
 #' #to make them ready for downstream analyses.
 #' proc_curatedBreastDataExprSetList <- processExpressionSetList(
 #' exprSetList=curatedBreastDataExprSetList, 
-#' outputFileDirectory = "./", numTopVarGenes=100)
+#' outputFileDirectory = tempdir(), numTopVarGenes=100)
 #' @export
 processExpressionSetList <- function(exprSetList,outputFileDirectory="./",
                                      numTopVarGenes,minVarPercentile,maxVarPercentile=1,minVar){
   
-  outputFile = paste0(outputFileDirectory,
+  outputFile <- paste0(outputFileDirectory,
                       "/curatedBreastData_processExpressionSetMessages.txt")
 
-  for(e in 1:length(exprSetList)){
+  for(e in seq_along(exprSetList)){
     message("\nAnalyzing dataset ",e, " or dataset named ",
             names(exprSetList)[e]);
     
@@ -106,7 +106,7 @@ processExpressionSetList <- function(exprSetList,outputFileDirectory="./",
 #' 
 #' post_procExprSet <- processExpressionSet(exprSet=
 #' curatedBreastDataExprSetList[[1]], 
-#' outputFileDirectory = "./",
+#' outputFileDirectory = tempdir(),
 #' minVarPercentile=.75, maxVarPercentile = 1)
 #' @export
 processExpressionSet <- function(exprSet,outputFileDirectory="./",
@@ -129,10 +129,10 @@ processExpressionSet <- function(exprSet,outputFileDirectory="./",
     
     tmpExpr <- data.matrix(tmp$exprFilterImpute)
     exprSet@assayData <- assayDataNew(exprs =  tmpExpr)
-    featureNames(exprSet@assayData) <- c(1:length(tmp$keysFilterImpute))
+    featureNames(exprSet@assayData) <- seq_along(tmp$keysFilterImpute)
     #need a data.frame and not cbind: otherwise coerces 
     #gene symbols into numeric data type.
-    fData <- data.frame(c(1:length(tmp$keysFilterImpute)), tmp$keysFilterImpute)
+    fData <- data.frame(seq_along(tmp$keysFilterImpute), tmp$keysFilterImpute)
     colnames(fData) <- c("number","gene_symbol")
     fData(exprSet) <- fData
   #only one set of classes data here - the phenoData, 
@@ -141,7 +141,7 @@ processExpressionSet <- function(exprSet,outputFileDirectory="./",
     pData(exprSet) <- data.frame(tmp$classesFilter[[1]])
   #must also set global featureNames to updated keys, not just featureData.
   #otheriwse won't return a valid ExpressionObject.
-  featureNames(exprSet@featureData) <- c(1:length(tmp$keysFilterImpute))
+  featureNames(exprSet@featureData) <- seq_along(tmp$keysFilterImpute)
     # #may need to re-set protocolData field so dimensions match
    labelDescription <- rep("Breast cancer human tumor tissue sample", nrow(pData(exprSet)))
    labelDescription <- data.frame(labelDescription) 
@@ -391,7 +391,7 @@ pheno and feature slots.\n Proceed through data analysis with caution!")
 #' phenoData=pData(curatedBreastDataExprSetList[[1]]))
 #' 
 #' filteredStudy <- filterAndImputeSamples(study, studyName = "study", 
-#' outputFile = "createTestTrainSetsOutput.txt", impute = TRUE, 
+#' outputFile = tempfile(), impute = TRUE, 
 #' knnFractionSize = 0.01, fractionSampleNAcutoff = 0.005, 
 #' fractionGeneNAcutoff = 0.01, exprIndex = "expr", classIndex="phenoData",
 #' sampleCol = TRUE, returnErrorRate = TRUE)
@@ -553,7 +553,7 @@ samples are now the columns for an pxn matrix.")
       fakeNAexpr <- apply(noNAexpr,MARGIN=2, FUN = function(studyCol, NAperCol){
         
         #make random genes (rows) for this patient NA
-        NArows <- sample(1:length(studyCol),NAperCol,replace=FALSE)
+        NArows <- sample(seq_along(studyCol),NAperCol,replace=FALSE)
         
         studyCol[NArows] <- NA
         
@@ -632,11 +632,11 @@ file=outputFile,append=TRUE)
     
     
     
-    for(c in 1:length(classIndex)){
+    for(c in seq_along(classIndex)){
       
       if( !(classIndex[c] %in% names(study)) || 
             (length(which(names(study) ==classIndex[c])) >1) ){
-        print(classIndex[c])
+        message(classIndex[c])
         stop("you either supplied an incorrect class/outcomes index name or
              there are duplicated names in your study list.")
         
@@ -723,12 +723,12 @@ This function just removes any genes whose key is NA.")
   
   if(length(colnames(expr))==0 && missing(sampleColNames)){
     
-    stop("error: must have a sample (column) ID specified for this sample.")
+    stop("must have a sample (column) ID specified for this sample.")
     
   }
   
   if(dim(expr)[1] != length(keys)) 
-    stop("error: length of keys doesn't match 
+    stop("length of keys doesn't match 
          number of rows in expression matrix.")
   
   if(ncol(expr)==1){
@@ -759,7 +759,7 @@ This function just removes any genes whose key is NA.")
   singles.keys <- names(which(table(keys) == 1))
   singles.ind <- which(keys %in% singles.keys)
   
-  message("\nYou may get a warning here because key (usually gene) names are
+  message("\nYou may get a notification here because key (usually gene) names are
   duplicated so it can't use them as row names. 
   That's OK, because we are immediately collapsing them into one feature.\n")
   gems <- data.frame(expr = expr, keys = keys,stringsAsFactors = FALSE)
@@ -771,7 +771,7 @@ This function just removes any genes whose key is NA.")
   #now remove the (last) keys column so only have expression values
   #to convince yourself of this, just type in names(out) 
   #and you'll see what I mean.
-  out <- out[,1:(dim(out)[2]-1)]
+  out <- out[, seq_len(dim(out)[2] - 1)]
   
   #re-set to patient names (data.frame action put "expr." as prefix)
   #only 1 sample? that means it'll pop up as a numeric class, 
@@ -815,7 +815,7 @@ This function just removes any genes whose key is NA.")
     
     if (method == "average") {
       
-      out2 <- sapply(tmp, function(m) {
+      out2 <- vapply(tmp, function(m) {
         
         #odd bc if you run this code outside of sapply: 
         #it will have flipped indices for m.
@@ -825,7 +825,7 @@ This function just removes any genes whose key is NA.")
         
         #REMOVE LAST COLUMN: this is the key string character, 
         #not an expression value!! 
-        m <- m[, (1:dim(m)[2]-1) ]
+        m <- m[, seq_len(dim(m)[2] - 1) ]
         #just average across all duplicated probes (for each patient/column: 
         #want a new collapsed value for all duplicated keys, for each patient.)
         
@@ -842,7 +842,7 @@ This function just removes any genes whose key is NA.")
         #(not lumping patient expression values together)
         out2 <- colMeans(m,na.rm=TRUE)
         
-      })
+      }, FUN.VALUE = numeric(ncol(expr)))
       
       #sapply flips it - puts the keys as columns.
       
@@ -876,7 +876,7 @@ This function just removes any genes whose key is NA.")
         keyInd <- grep(rownames(out2)[1],multis$keys)
         #is mean of these rows (excluding last column - 
         #the key characters) as expected?
-        exprRows <- as.matrix(multis[keyInd,1:(dim(multis)[2]-1)])
+        exprRows <- as.matrix(multis[keyInd, seq_len(dim(multis)[2] - 1)])
         
         
         #if(dim(as.matrix(exprRows))[2]==1 && dim(as.matrix(out2))[1]>1){
@@ -916,7 +916,7 @@ returning the expected mean of rows of expression values for duplicated keys ")
         #1 gene's variance across all patients
         #REMOVE LAST COLUMN: this is the key string character, 
         #not an expression value!!
-        m <- m[, (1:dim(m)[2]-1) ]
+        m <- m[, seq_len(dim(m)[2] - 1) ]
         #make all numeric again so numbers don't end up weird!!
         m <- data.matrix(as.data.frame(m,stringsAsFactors=FALSE))
         #here, we want to look at the variance (diag of cov) of each 
@@ -960,7 +960,7 @@ returning the expected mean of rows of expression values for duplicated keys ")
         #be more duplicated ones.
         keyInd <- grep(rownames(out2)[1],multis$keys)
         #is the row chosen out of this subset as expected?
-        exprRows <- multis[keyInd,1:(dim(multis)[2]-1)]
+        exprRows <- multis[keyInd, seq_len(dim(multis)[2] - 1)]
         
         var <- diag(cov(t(exprRows),use=varMetric))
         
@@ -1058,7 +1058,7 @@ returning the expected mean of rows of expression values for duplicated keys ")
 #' #extra pre-processing.
 #' outputMatrix <- removeDuplicatedPatients(exprMatrix=
 #' exprs(curatedBreastDataExprSetList[[1]]), 
-#' outputFile = "./duplicatedPatientsOutput.txt", varMetric = c("everything"))
+#' outputFile = tempfile(), varMetric = c("everything"))
 #' #final dimensions - unchanged in this case with 
 #' #no samples sharing the same patient ID.
 #' dim(outputMatrix)
@@ -1078,7 +1078,7 @@ removeDuplicatedPatients <- function(exprMatrix,
   if(length(varMetric)>1){
     
     message("defaulting the everything variance metric.")
-    varMetric = c("everything")
+    varMetric <- c("everything")
     
   }
   nSamples <- ncol(exprMatrix)
@@ -1110,7 +1110,7 @@ removeDuplicatedPatients <- function(exprMatrix,
     #why need the "which" in the for loop to grap all samples 
     #related to 1 patient.
     
-    for(d in 1:length(duplicated_patients)){
+    for(d in seq_along(duplicated_patients)){
       
       
       #how many NAs in each?
@@ -1232,7 +1232,7 @@ removeDuplicatedPatients <- function(exprMatrix,
 #' #take top 100 varying genes
 #' 
 #' filterGeneStudy <- filterGenesByVariance(study, exprIndex = "expr", 
-#' keysIndex = "keys", outputFile = "./varCal.txt", 
+#' keysIndex = "keys", outputFile = tempfile(), 
 #' plotVarianceHist = FALSE,
 #' varMetric = c("everything"), sampleCol = TRUE, numTopVarGenes=100)
 #' 
@@ -1432,7 +1432,7 @@ filterGenesByVariance <- function(study, plotSaveDir="~/",minVarPercentile,
     #never sees the gene names, just the indices.
     if(length(geneVarSorted$ix)>= numTopVarGenes){
       
-      topGeneIndices <- geneVarSorted$ix[1:numTopVarGenes];
+      topGeneIndices <- geneVarSorted$ix[seq_len(numTopVarGenes)];
       
     }else{
       #just take the rest of the genes

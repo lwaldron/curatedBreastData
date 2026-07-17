@@ -55,7 +55,7 @@ curatedBreastDataExprSetList <- getCuratedBreastDataExprSetList(test=TRUE)
 
 post_procExprSet <- processExpressionSet(exprSet=
 curatedBreastDataExprSetList[[1]], 
-outputFileDirectory = "./",
+outputFileDirectory = tempdir(),
 minVarPercentile=.75, maxVarPercentile = 1)
 }
 \author{

@@ -30,22 +30,25 @@
 
 getCuratedBreastDataExprSetList <- function(test = FALSE) {
   if (test) {
-    zenodo_url <- "https://zenodo.org/records/21415886/files/curatedBreastData_test_archive.tar.gz?download=1"
-    archive_name <- "curatedBreastData_test_archive.tar.gz"
+    rpath <- system.file("extdata", "curatedBreastData_test_archive.tar.gz", package = "curatedBreastData")
+    if (rpath == "") {
+      stop("Local test archive not found in package extdata folder")
+    }
   } else {
     zenodo_url <- "https://zenodo.org/records/21415886/files/curatedBreastData_archive.tar.gz?download=1"
     archive_name <- "curatedBreastData_archive.tar.gz"
-  }
-  
-  bfc <- BiocFileCache()
-  res <- bfcquery(bfc, archive_name, "rname", exact = TRUE)
+    
+    bfc <- BiocFileCache()
+    res <- bfcquery(bfc, archive_name, "rname", exact = TRUE)
 
-  if (nrow(res) == 0) {
-    message("Downloading curatedBreastData archive from Zenodo...")
-    rpath <- bfcadd(bfc, rname = archive_name, fpath = zenodo_url)
-  } else {
-    rid <- as.character(res[, "rid"])[1]
-    rpath <- bfcrpath(bfc, rids = rid)
+    if (nrow(res) == 0) {
+      message("Downloading curatedBreastData archive from Zenodo...")
+      rid <- bfcadd(bfc, rname = archive_name, fpath = zenodo_url)
+      rpath <- bfcrpath(bfc, rids = rid)
+    } else {
+      rid <- as.character(res[, "rid"])[1]
+      rpath <- bfcrpath(bfc, rids = rid)
+    }
   }
 
   # The archive contains curatedBreastDataExprSetList.rda and clinicalData.rda
@@ -123,22 +126,25 @@ getCuratedBreastDataExprSetList <- function(test = FALSE) {
 
 getClinicalData <- function(test = FALSE) {
   if (test) {
-    zenodo_url <- "https://zenodo.org/records/21415886/files/curatedBreastData_test_archive.tar.gz?download=1"
-    archive_name <- "curatedBreastData_test_archive.tar.gz"
+    rpath <- system.file("extdata", "curatedBreastData_test_archive.tar.gz", package = "curatedBreastData")
+    if (rpath == "") {
+      stop("Local test archive not found in package extdata folder")
+    }
   } else {
     zenodo_url <- "https://zenodo.org/records/21415886/files/curatedBreastData_archive.tar.gz?download=1"
     archive_name <- "curatedBreastData_archive.tar.gz"
-  }
-  
-  bfc <- BiocFileCache()
-  res <- bfcquery(bfc, archive_name, "rname", exact = TRUE)
+    
+    bfc <- BiocFileCache()
+    res <- bfcquery(bfc, archive_name, "rname", exact = TRUE)
 
-  if (nrow(res) == 0) {
-    message("Downloading curatedBreastData archive from Zenodo...")
-    rpath <- bfcadd(bfc, rname = archive_name, fpath = zenodo_url)
-  } else {
-    rid <- as.character(res[, "rid"])[1]
-    rpath <- bfcrpath(bfc, rids = rid)
+    if (nrow(res) == 0) {
+      message("Downloading curatedBreastData archive from Zenodo...")
+      rid <- bfcadd(bfc, rname = archive_name, fpath = zenodo_url)
+      rpath <- bfcrpath(bfc, rids = rid)
+    } else {
+      rid <- as.character(res[, "rid"])[1]
+      rpath <- bfcrpath(bfc, rids = rid)
+    }
   }
 
   # The archive contains curatedBreastDataExprSetList.rda and clinicalData.rda

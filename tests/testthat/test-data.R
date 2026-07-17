@@ -1,5 +1,4 @@
 test_that("Data retrieval functions return correct types and sizes", {
-  skip_if_offline()
   esets <- getCuratedBreastDataExprSetList(test=TRUE)
   expect_is(esets, "list")
   expect_is(esets[[1]], "ExpressionSet")
