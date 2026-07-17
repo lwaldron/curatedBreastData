@@ -43,8 +43,7 @@ getCuratedBreastDataExprSetList <- function(test = FALSE) {
 
     if (nrow(res) == 0) {
       message("Downloading curatedBreastData archive from Zenodo...")
-      rid <- bfcadd(bfc, rname = archive_name, fpath = zenodo_url)
-      rpath <- bfcrpath(bfc, rids = rid)
+      rpath <- bfcadd(bfc, rname = archive_name, fpath = zenodo_url)
     } else {
       rid <- as.character(res[, "rid"])[1]
       rpath <- bfcrpath(bfc, rids = rid)
@@ -139,8 +138,7 @@ getClinicalData <- function(test = FALSE) {
 
     if (nrow(res) == 0) {
       message("Downloading curatedBreastData archive from Zenodo...")
-      rid <- bfcadd(bfc, rname = archive_name, fpath = zenodo_url)
-      rpath <- bfcrpath(bfc, rids = rid)
+      rpath <- bfcadd(bfc, rname = archive_name, fpath = zenodo_url)
     } else {
       rid <- as.character(res[, "rid"])[1]
       rpath <- bfcrpath(bfc, rids = rid)
