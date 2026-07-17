@@ -65,7 +65,7 @@ keys=fData(curatedBreastDataExprSetList[[1]])[, "gene_symbol"],
 phenoData=pData(curatedBreastDataExprSetList[[1]]))
 
 filteredStudy <- filterAndImputeSamples(study, studyName = "study", 
-outputFile = "createTestTrainSetsOutput.txt", impute = TRUE, 
+outputFile = tempfile(), impute = TRUE, 
 knnFractionSize = 0.01, fractionSampleNAcutoff = 0.005, 
 fractionGeneNAcutoff = 0.01, exprIndex = "expr", classIndex="phenoData",
 sampleCol = TRUE, returnErrorRate = TRUE)

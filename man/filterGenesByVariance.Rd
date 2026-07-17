@@ -81,7 +81,7 @@ keys=fData(curatedBreastDataExprSetList[[1]])[, "gene_symbol"])
 #take top 100 varying genes
 
 filterGeneStudy <- filterGenesByVariance(study, exprIndex = "expr", 
-keysIndex = "keys", outputFile = "./varCal.txt", 
+keysIndex = "keys", outputFile = tempfile(), 
 plotVarianceHist = FALSE,
 varMetric = c("everything"), sampleCol = TRUE, numTopVarGenes=100)
 
