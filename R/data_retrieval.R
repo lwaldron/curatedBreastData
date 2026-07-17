@@ -19,12 +19,13 @@
 #' @return A list, with each index containing an ExpressionSet object from a specific study, and potentially a specific batch.
 #' @references Planey, Butte. Database integration of 4923 publicly-available samples of breast cancer molecular and clinical data. AMIA Joint Summits Translational Science Proceedings. (2003) PMC3814460
 #' @examples
-#' curatedBreastDataExprSetList <- getCuratedBreastDataExprSetList(test=TRUE)
-#' #what are all the names of the studies?
+#' \dontrun{
+#' curatedBreastDataExprSetList <- getCuratedBreastDataExprSetList(test = TRUE)
+#' # what are all the names of the studies?
 #' names(curatedBreastDataExprSetList)
-#' #what is the dimension of the gene 
-#' #expression matrix for study GSE2034?
+#' # what is the dimension of the gene expression matrix for study GSE2034?
 #' dim(exprs(curatedBreastDataExprSetList$study_2034_GPL96_all))
+#' }
 #' @importFrom BiocFileCache BiocFileCache bfcquery bfcadd bfcrpath
 #' @importFrom utils untar
 #' @export
@@ -40,19 +41,22 @@ getCuratedBreastDataExprSetList <- function(test = FALSE) {
   
   bfc <- BiocFileCache()
   res <- bfcquery(bfc, archive_name, "rname", exact = TRUE)
-  
+
   if (nrow(res) == 0) {
     message("Downloading curatedBreastData archive from Zenodo...")
-    rpath <- bfcadd(bfc, archive_name, zenodo_url)
+    rid <- bfcadd(bfc, rname = archive_name, fpath = zenodo_url)
   } else {
-    rpath <- bfcrpath(bfc, archive_name)
+    rid <- res$rid[[1]]
   }
-  
+
+  rpath <- bfcrpath(bfc, rid)
+
   # The archive contains curatedBreastDataExprSetList.rda and clinicalData.rda
   # We extract them to a temporary directory
-  tmp_dir <- tempdir()
+  tmp_dir <- tempfile("curatedBreastData_")
+  dir.create(tmp_dir)
+  on.exit(unlink(tmp_dir, recursive = TRUE), add = TRUE)
   untar(rpath, exdir = tmp_dir)
-  
   # Load the data
   rda_path <- file.path(tmp_dir, "curatedBreastDataExprSetList.rda")
   if (!file.exists(rda_path)) {
@@ -131,19 +135,22 @@ getClinicalData <- function(test = FALSE) {
   
   bfc <- BiocFileCache()
   res <- bfcquery(bfc, archive_name, "rname", exact = TRUE)
-  
+
   if (nrow(res) == 0) {
     message("Downloading curatedBreastData archive from Zenodo...")
-    rpath <- bfcadd(bfc, archive_name, zenodo_url)
+    rid <- bfcadd(bfc, rname = archive_name, fpath = zenodo_url)
   } else {
-    rpath <- bfcrpath(bfc, archive_name)
+    rid <- res$rid[[1]]
   }
-  
+
+  rpath <- bfcrpath(bfc, rid)
+
   # The archive contains curatedBreastDataExprSetList.rda and clinicalData.rda
   # We extract them to a temporary directory
-  tmp_dir <- tempdir()
+  tmp_dir <- tempfile("curatedBreastData_")
+  dir.create(tmp_dir)
+  on.exit(unlink(tmp_dir, recursive = TRUE), add = TRUE)
   untar(rpath, exdir = tmp_dir)
-  
   # Load the data
   rda_path <- file.path(tmp_dir, "clinicalData.rda")
   if (!file.exists(rda_path)) {

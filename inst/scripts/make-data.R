@@ -5,9 +5,20 @@
 
 # Load the original data
 message("Loading original data...")
-load("data/curatedBreastDataExprSetList.rda")
-load("data/clinicalData.rda")
-
+expr_rda <- "data/curatedBreastDataExprSetList.rda"
+clin_rda <- "data/clinicalData.rda"
+if (!file.exists(expr_rda) || !file.exists(clin_rda)) {
+  stop(
+    sprintf(
+      "Expected %s and %s to exist. Download/unpack the original .rda files into data/ before running this script.",
+      expr_rda,
+      clin_rda
+    ),
+    call. = FALSE
+  )
+}
+load(expr_rda)
+load(clin_rda)
 # Create a temporary directory to hold the raw files
 tmp_dir <- tempfile("curatedBreastData_")
 dir.create(tmp_dir)
