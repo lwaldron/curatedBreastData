@@ -1,4 +1,4 @@
-# curatedBreastData 2.42.0
+# curatedBreastData 2.41.1
 
 ## SIGNIFICANT USER-VISIBLE CHANGES
 
