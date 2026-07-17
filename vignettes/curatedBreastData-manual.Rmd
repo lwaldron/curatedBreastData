@@ -47,7 +47,7 @@ Gene expression datasets must be post-processed after normalization; **curatedBr
 
 This package works with expression data in the form of S4 ExpressionSet objects and/or lists of S4 ExpressionSet objects. In this example workflow, we load up all of the datasets.
 
-```{r}
+```{r load-data}
 library("curatedBreastData")
 #load up datasets that are in S4 expressionSet format.
 #clinical data from master clinicalTable already linked to each sample
@@ -56,7 +56,7 @@ curatedBreastDataExprSetList <- getCuratedBreastDataExprSetList(test=TRUE);
 ```
 
 We can see that clinical data for each dataset is included in the phenoData slot.
-```{r}
+```{r view-clinical}
 #check out the clinical data for dataset 1
 #first look at the GEO study name
 names(curatedBreastDataExprSetList)[1]
@@ -68,10 +68,10 @@ head(pData(curatedBreastDataExprSetList[[1]])[c(1:3), c(1:10)])
 
 We then post-process this data. Let's say we only want the top 5000 genes by variance for each dataset. This can take a few minutes as we're post-processing 34 datasets. This takes a while, so it's not included in the examples() section.
 
-```{r}
+```{r post-process-list}
 #process only the first two datasets to avoid a long-running example:
 #take top 5000 genes by variance from each dataset.
-proc_curatedBreastDataExprSetList <- processExpressionSetList(exprSetList=curatedBreastDataExprSetList[1:2], outputFileDirectory = "./", numTopVarGenes=5000)
+proc_curatedBreastDataExprSetList <- processExpressionSetList(exprSetList=curatedBreastDataExprSetList[1:2], outputFileDirectory = tempdir(), numTopVarGenes=5000)
 ```
 Now we have processed expression matrices, each with the top 5000 genes by variance. We can then begin to explore what clinical variables we could use to run a meta-analysis or supervised analysis with all of this data. 
 
@@ -79,7 +79,7 @@ All clinical variables are semantically normalized/have the same names across al
 
 Treatment data has been carefully curated and aggregtaed into semantically normalized variables so that a user can both determine which patients received a therapy, and then control for these variables in analyses. For example, using the master clinicalData table, we can quickly determine how many patients ever had chemotherapy. The user can also inspect specific classes of chemotherapy, such as taxanes.  Whenever granular therapy information was provided, it was recorded in the clinicalTable (otherwise, it was left as NA.)
 
-```{r}
+```{r view-treatment}
 #load up master clinical data table
 clinicalData <- getClinicalData(test=TRUE)
 #look at some of the clinical variable name definitions
@@ -100,7 +100,7 @@ numChemoTaxane
 
 
 We can also look at adjuvant vs. neoadjuvant therapy.
-```{r}
+```{r view-adjuvant}
 #how many had adjuvant therapy?
 numAdjPatients <- length(which(
   clinicalData$clinicalTable$neoadjuvant_or_adjuvant=="adj"))
@@ -111,7 +111,7 @@ numAdjPatients
 
 The clinicalTable data frame can allow us to then select the relevant patients from each dataset who have the outcomes variable we want. For example, we inspect the number of samples with data pertaining to Overall Survival below. 
 
-```{r}
+```{r view-survival-and-session}
 #how many patients have non-NA OS binary data?
 length(which(!is.na(clinicalData$clinicalTable$OS)))
 #how many have OS data in the more granular form of months until OS? 
