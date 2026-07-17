@@ -9,14 +9,13 @@
 - Added new retrieval functions `getCuratedBreastDataExprSetList()` and `getClinicalData()` to access the remote dataset from Zenodo.
 - Embedded a miniature test dataset archive in `inst/extdata` for rapid local testing and offline execution without remote dependencies.
 - Added `curatedBreastData_pData` (pre-concatenated phenotype metadata from all datasets) to the package reference index, manual vignette, and documentation.
+- Configured a new `pkgdown` documentation site to host the package reference manual and manual vignette.
 
 ## BUG FIXES
 
 - Fixed operator precedence bugs and replaced deprecated `1:...` loop sequence generators with type-safe `seq_along()` and `seq_len()`.
 - Converted `sapply` calls to type-safe `vapply()` in `collapseDupProbes()`.
-- Resolved redundant error/warning signal conditions in processing handlers.
 - Updated `DESCRIPTION` metadata to include the latest R dependency (`>= 4.6.0`), missing `biocViews`, `URL`, and `BugReports` fields.
-- Fixed `BiocFileCache` path query matching on character-coerced resource IDs.
 
 ## INTERNAL CHANGES
 
