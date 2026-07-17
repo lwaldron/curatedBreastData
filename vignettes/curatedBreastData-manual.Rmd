@@ -108,6 +108,20 @@ numAdjPatients <- length(which(
 numAdjPatients 
 ```
 
+### The curatedBreastData_pData Dataset
+
+As a convenience, the package also provides `curatedBreastData_pData`, which is a single, pre-concatenated `data.frame` containing the `pData` (phenotypic and clinical metadata) from all of the datasets in `curatedBreastDataExprSetList`. Rownames correspond to the sample IDs.
+
+You can load this dataset directly using the standard `data()` function:
+
+```{r view-pdata}
+# Load the pre-concatenated pData dataset
+data(curatedBreastData_pData)
+
+# View its dimensions and structure
+dim(curatedBreastData_pData)
+head(curatedBreastData_pData)[1:5, 1:5]
+```
 
 The clinicalTable data frame can allow us to then select the relevant patients from each dataset who have the outcomes variable we want. For example, we inspect the number of samples with data pertaining to Overall Survival below. 
 

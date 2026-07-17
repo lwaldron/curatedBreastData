@@ -1,7 +1,7 @@
 Package: curatedBreastData
 Type: Package
 Title: Curated breast cancer gene expression data with survival and treatment information
-Version: 2.40.1
+Version: 2.40.2
 Date: 2026-07-17
 Authors@R: c(
     person("Katie", "Planey", role = "aut", comment = c(ORCID = "0000-0002-3482-1929")),

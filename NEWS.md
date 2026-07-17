@@ -1,4 +1,4 @@
-# curatedBreastData 2.40.1
+# curatedBreastData 2.40.2
 
 ## SIGNIFICANT USER-VISIBLE CHANGES
 
@@ -8,6 +8,7 @@
 
 - Added new retrieval functions `getCuratedBreastDataExprSetList()` and `getClinicalData()` to access the remote dataset from Zenodo.
 - Embedded a miniature test dataset archive in `inst/extdata` for rapid local testing and offline execution without remote dependencies.
+- Added `curatedBreastData_pData` (pre-concatenated phenotype metadata from all datasets) to the package reference index, manual vignette, and documentation.
 
 ## BUG FIXES
 
