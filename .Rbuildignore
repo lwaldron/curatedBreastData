@@ -1,0 +1,5 @@
+^\.gemini$
+^curatedBreastData_test_archive\.tar\.gz$
+^external_data_store\.txt$
+^duplicatedPatientsOutput\.txt$
+^\.github$
