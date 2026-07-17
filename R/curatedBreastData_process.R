@@ -1,10 +1,38 @@
+#' Process a list of S4 expressionSet objects.
+#'
+#' A wrapper function for the post-processing function processExpressionSet() on
+#' a list of S4 expressionSet objects. This function is run after initial dataset
+#' normalization, such as quantile normalization on microarray datasets.
+#'
+#' @param exprSetList List of S4 expression sets.
+#' @param outputFileDirectory Output file directory for messages that print status of post-processing the ExpressionSets.
+#' @param numTopVarGenes A numeric value indicating the number of genes (features) to select; the function will only take this number of genes that have the highest variance across all genes.
+#' @param minVarPercentile Minimum variance percentile. Must be provided in conjunction with maxVarPercentile to use percentiles to threshold genes.
+#' @param maxVarPercentile Maximum variance percentile. Defaul is 1, i.e. 1\%. Must be provided in conjunction with minVarPercentile to use percentiles to threshold genes.
+#' @param minVar If maxVar is provided, as opposed to minVarPercentile and maxVarPercentile, genes are removed that are below a certain variance magnitude. This is helpful before running certain algorithms, such as the popular Combat batch normalization technique, that can throw errors if genes with extremely low variances are in the data matrix. May be used in conjunction with maxVar or in isolation.
+#'
+#' @return A list of processed S4 ExpressionSet objects.
+#'
+#' @author Katie Planey <katie.planey@@gmail.com>
+#' @seealso \code{\link{processExpressionSet}} 
+#' @examples
+#' #load up our datasets
+#' curatedBreastDataExprSetList <- getCuratedBreastDataExprSetList(test=TRUE)
+#' 
+#' #just take top 100 genes by variance
+#' #this will post-process every dataset in the package
+#' #to make them ready for downstream analyses.
+#' proc_curatedBreastDataExprSetList <- processExpressionSetList(
+#' exprSetList=curatedBreastDataExprSetList, 
+#' outputFileDirectory = tempdir(), numTopVarGenes=100)
+#' @export
 processExpressionSetList <- function(exprSetList,outputFileDirectory="./",
                                      numTopVarGenes,minVarPercentile,maxVarPercentile=1,minVar){
   
-  outputFile = paste0(outputFileDirectory,
+  outputFile <- paste0(outputFileDirectory,
                       "/curatedBreastData_processExpressionSetMessages.txt")
 
-  for(e in 1:length(exprSetList)){
+  for(e in seq_along(exprSetList)){
     message("\nAnalyzing dataset ",e, " or dataset named ",
             names(exprSetList)[e]);
     
@@ -42,6 +70,45 @@ processExpressionSetList <- function(exprSetList,outputFileDirectory="./",
 }
 
 #assumption:  your feature data has a column that labeled gene_symbol.
+#' Post-process a normalized assayData in an ExpressionSet object
+#'
+#' This function Post-processes a normalized assayData in an ExpressionSet object.
+#' Is is assumed the assay data is already baseline normalized (for example, for
+#' microarray data, this could mean quantile normalized and then logged.)
+#'
+#' This function performs several post-processing tasks: filtering out genes and
+#' samples with high NA rates, imputing missing values, collapsing duplicated
+#' features/genes to make a unique feature list, removing any samples for which
+#' there is already a sample with the sample patient ID (duplicated samples),
+#' and filtering genes by variance.  This function is a wrapper for the functions:
+#' filterAndImputeSamples(), collapseDupProbes(), removeDuplicatedPatients(), and
+#' filterGenesByVariance(). It is is run after initial dataset normalization, such
+#' as quantile normalization on microarray datasets.
+#'
+#' @param exprSet expressionSet S4 object with expression (assay) data, featureData and phenoData.
+#' @param outputFileDirectory Output file directory for messages that print status of post-processing the ExpressionSet.  
+#' @param numTopVarGenes A numeric value indicating the number of genes (features) to select; the function will only take this number of genes that have the highest variance across all genes.
+#' @param minVarPercentile Minimum variance percentile. Must be provided in conjunction with maxVarPercentile to use percentiles to threshold genes.
+#' @param maxVarPercentile Maximum variance percentile. Defaul is 1, i.e. 1\%. Must be provided in conjunction with minVarPercentile to use percentiles to threshold genes.
+#' @param minVar If maxVar is provided, as opposed to minVarPercentile and maxVarPercentile, genes are removed that are below a certain variance magnitude. This is helpful before running certain algorithms, such as the popular Combat batch normalization technique, that can throw errors if genes with extremely low variances are in the data matrix. May be used in conjunction with maxVar or in isolation.
+#'
+#' @return A post-processed S4 expressionSet.  Tests are run to confirm the final S4 object is a valid ExpressionObject before it is returned.
+#'
+#' @author Katie Planey <katie.planey@@gmail.com>
+#' @examples
+#' #load up our datasets
+#' curatedBreastDataExprSetList <- getCuratedBreastDataExprSetList(test=TRUE)
+#' 
+#' #just perform on one dataset as an example, GSE1379. 
+#' #take only genes that fall in 
+#' #the variance percentiles between .75 and 1 
+#' #(i.e. top 75th percentile genes by variance.)
+#' 
+#' post_procExprSet <- processExpressionSet(exprSet=
+#' curatedBreastDataExprSetList[[1]], 
+#' outputFileDirectory = tempdir(),
+#' minVarPercentile=.75, maxVarPercentile = 1)
+#' @export
 processExpressionSet <- function(exprSet,outputFileDirectory="./",
                                  numTopVarGenes,minVarPercentile,
                                  maxVarPercentile=1,minVar){
@@ -62,10 +129,10 @@ processExpressionSet <- function(exprSet,outputFileDirectory="./",
     
     tmpExpr <- data.matrix(tmp$exprFilterImpute)
     exprSet@assayData <- assayDataNew(exprs =  tmpExpr)
-    featureNames(exprSet@assayData) <- c(1:length(tmp$keysFilterImpute))
+    featureNames(exprSet@assayData) <- seq_along(tmp$keysFilterImpute)
     #need a data.frame and not cbind: otherwise coerces 
     #gene symbols into numeric data type.
-    fData <- data.frame(c(1:length(tmp$keysFilterImpute)), tmp$keysFilterImpute)
+    fData <- data.frame(seq_along(tmp$keysFilterImpute), tmp$keysFilterImpute)
     colnames(fData) <- c("number","gene_symbol")
     fData(exprSet) <- fData
   #only one set of classes data here - the phenoData, 
@@ -74,7 +141,7 @@ processExpressionSet <- function(exprSet,outputFileDirectory="./",
     pData(exprSet) <- data.frame(tmp$classesFilter[[1]])
   #must also set global featureNames to updated keys, not just featureData.
   #otheriwse won't return a valid ExpressionObject.
-  featureNames(exprSet@featureData) <- c(1:length(tmp$keysFilterImpute))
+  featureNames(exprSet@featureData) <- seq_along(tmp$keysFilterImpute)
     # #may need to re-set protocolData field so dimensions match
    labelDescription <- rep("Breast cancer human tumor tissue sample", nrow(pData(exprSet)))
    labelDescription <- data.frame(labelDescription) 
@@ -287,6 +354,53 @@ pheno and feature slots.\n Proceed through data analysis with caution!")
 }
 #fractionGeneNAcutoff:  max fraction of NAs allowed for a certain gene across all samples.
 #fractionSampleNAcutoff: max fraction of NAs allowed for a certain sample across all genes.
+#' Filter and Impute Samples
+#'
+#' A method that removes samples or genes with high NA rates and then KNN imputes
+#' remaining missing values.
+#'
+#' @param study A list, of minimally the gene expression or some molecular data matrix with keys (molecular features, such as genes) in the rows and patient samples in the columns and a keys list. It is assumed that the keys entity is named "keys", but in line with using this function for any type of molecular data, the exprIndex name in the list can be altered.
+#' @param studyName Character string to name the study. Useful in cases where looping over multiple datasets; output messages printed to the output file can then be identified by each individual study name. 
+#' @param outputFile Output File for printing progress and stats on gene/sample filtering and data imputation.  Include full directory if file should not be printed to current working directory.
+#' @param impute Impute data? A boolean TRUE or FALSE value. If FALSE, only genes and samples with high NA rates are removed, and the rest of the data is not imputed.
+#' @param knnFractionSize What is the fraction of neighbors out of the total dataset to be used for knn impute nearest neighbor? This is translated into the "k" numeric magnitude in impute.knn() from the impute package. Default is .01, or 1\% of the data.
+#' @param fractionSampleNAcutoff Max fraction of NAs allowed for a certain sample across all genes. Default is .005 (.005, or .5\%, still captures a large number of gnees for a sample if there are tens of thousands of genes in the data matrix.)
+#' @param fractionGeneNAcutoff Max fraction of NAs allowed for a certain gene across all samples. Default is .01. Thus, a certain gene cannot be missing in greater than 1\% of patients. It is recommended that this threshold be increased for smaller datasets unless a user wants a gene to be removed that is missing in only 1 sample.
+#' @param exprIndex Character string. List slot name for the data matrix, presumably an expression matrix.
+#' @param classIndex Optional character string giving the list slot name for a phenotype vector or matrix if available. If phenotype/class data such as survival is already in the list, filtering out samples with high NA rates will result in the need to remove these samples from the phenotype data matrix; filterAndImputeSamples will appropriately filter out these samples from the phenoteyp data.
+#' @param sampleCol Are samples in the columns of the expression matrix? If not, this function will first transpose the matrix to make sure impute.knn is running properly.
+#' @param returnErrorRate Boolean TRUE or FALSE. If TRUE, a small amount of real expression data points are held out, and knn.impute is performed. The accuracy rate of the imputed values vs. the real values is returned. THis is helpful in early data analysis stages to determine whether KNN imputation is appropriate for your type of data. Default is FALSE to reduce computation time.
+#'
+#' @return A list containing the following objects:
+#' \item{expr}{original expression matrix}
+#' \item{exprFilterImputed}{final filtered and imputed expression matrix}
+#' \item{keys}{original keys}
+#' \item{keys}{final filtered and imputed keys}
+#' \item{classes}{original classes/phenotype data}
+#' \item{classes}{final classes/phenotype data, removing any sample rows that were removed from the expression matrix after filtering.}
+#'
+#' @author Katie Planey <katie.planey@@gmail.com>
+#' @examples
+#' #load up our datasets
+#' curatedBreastDataExprSetList <- getCuratedBreastDataExprSetList(test=TRUE)
+#' 
+#' #just perform on one dataset as an example, GSE1379. 
+#' #create study list object. 
+#' study <- list(expr=exprs(curatedBreastDataExprSetList[[1]]),
+#' keys=fData(curatedBreastDataExprSetList[[1]])[, "gene_symbol"],
+#' phenoData=pData(curatedBreastDataExprSetList[[1]]))
+#' 
+#' filteredStudy <- filterAndImputeSamples(study, studyName = "study", 
+#' outputFile = tempfile(), impute = TRUE, 
+#' knnFractionSize = 0.01, fractionSampleNAcutoff = 0.005, 
+#' fractionGeneNAcutoff = 0.01, exprIndex = "expr", classIndex="phenoData",
+#' sampleCol = TRUE, returnErrorRate = TRUE)
+#' 
+#' #see output list names 
+#' names(filteredStudy)
+#' #what is the imputation error fraction (rate)?
+#' filteredStudy$errorRate
+#' @export
 filterAndImputeSamples <- function(study,studyName = "study",
                                   outputFile = "createTestTrainSetsOutput.txt",
                                   impute=TRUE, knnFractionSize=.01,
@@ -439,7 +553,7 @@ samples are now the columns for an pxn matrix.")
       fakeNAexpr <- apply(noNAexpr,MARGIN=2, FUN = function(studyCol, NAperCol){
         
         #make random genes (rows) for this patient NA
-        NArows <- sample(1:length(studyCol),NAperCol,replace=FALSE)
+        NArows <- sample(seq_along(studyCol),NAperCol,replace=FALSE)
         
         studyCol[NArows] <- NA
         
@@ -518,11 +632,11 @@ file=outputFile,append=TRUE)
     
     
     
-    for(c in 1:length(classIndex)){
+    for(c in seq_along(classIndex)){
       
       if( !(classIndex[c] %in% names(study)) || 
             (length(which(names(study) ==classIndex[c])) >1) ){
-        print(classIndex[c])
+        message(classIndex[c])
         stop("you either supplied an incorrect class/outcomes index name or
              there are duplicated names in your study list.")
         
@@ -557,6 +671,38 @@ file=outputFile,append=TRUE)
 
 
 #remove NAs is remove NA keys.
+#' Collapse/handle duplicated probes (genes) in a dataset
+#'
+#' Used internally by processExpressionSet.  Code to either take the average across
+#' a set of duplicated "keys" (can be probes or genes, which correspond to the rows
+#' in the expression matrix "expr"), or take the keys that has the highest variance 
+#' across the set of duplicated keys.
+#'
+#' @param expr An expression matrix with genes in the rows and samples in the columns.
+#' @param sampleColNames Sample column names. Needed for internal debugging; usually the default colnames(expr) is appropriate.
+#' @param keys Generally the list of gene symbols, or some molecular key, that needs to be "collapsed" because it contains duplicated names.
+#' @param method Method used to collapse probes: take the mean across all duplicated keys, or just pick the key with the highest variance?
+#' @param debug Use internal unit tests that will stop the code if it detects a bug?
+#' @param removeNA_keys Remove any NA keys?
+#' @param varMetric Standard options taken from the base var() function. May be important if you have NA values in your data matrix; otherwise, "everything" is usually fine.
+#'
+#' @return Returns a processed list with the items "expr" and "keys", the expression matrix and final keys list.
+#'
+#' @author Katie Planey <katie.planey@@gmail.com>
+#' @examples
+#' #load up our datasets
+#' curatedBreastDataExprSetList <- getCuratedBreastDataExprSetList(test=TRUE)
+#' 
+#' #just perform on second dataset, GSE2034, as an example.
+#' #This dataset has no NAs already but does have duplicated genes
+#' #highestVariance calculation make take a minute to run.
+#' collapsedData <- collapseDupProbes(expr=exprs(curatedBreastDataExprSetList[[2]]),  
+#' keys=fData(curatedBreastDataExprSetList[[2]])[, "gene_symbol"], 
+#' method = c("highestVariance"), debug = TRUE, removeNA_keys = TRUE, 
+#' varMetric = c("everything"))
+#' #look at names of outputs
+#' names(collapsedData)
+#' @export
 collapseDupProbes <- function(expr,sampleColNames=colnames(expr),keys, 
                               method=c("average","highestVariance"),debug=TRUE,
                               removeNA_keys=TRUE,
@@ -577,12 +723,12 @@ This function just removes any genes whose key is NA.")
   
   if(length(colnames(expr))==0 && missing(sampleColNames)){
     
-    stop("error: must have a sample (column) ID specified for this sample.")
+    stop("must have a sample (column) ID specified for this sample.")
     
   }
   
   if(dim(expr)[1] != length(keys)) 
-    stop("error: length of keys doesn't match 
+    stop("length of keys doesn't match 
          number of rows in expression matrix.")
   
   if(ncol(expr)==1){
@@ -613,7 +759,7 @@ This function just removes any genes whose key is NA.")
   singles.keys <- names(which(table(keys) == 1))
   singles.ind <- which(keys %in% singles.keys)
   
-  message("\nYou may get a warning here because key (usually gene) names are
+  message("\nYou may get a notification here because key (usually gene) names are
   duplicated so it can't use them as row names. 
   That's OK, because we are immediately collapsing them into one feature.\n")
   gems <- data.frame(expr = expr, keys = keys,stringsAsFactors = FALSE)
@@ -625,13 +771,13 @@ This function just removes any genes whose key is NA.")
   #now remove the (last) keys column so only have expression values
   #to convince yourself of this, just type in names(out) 
   #and you'll see what I mean.
-  out <- out[,1:(dim(out)[2]-1)]
+  out <- out[, seq_len(dim(out)[2] - 1)]
   
   #re-set to patient names (data.frame action put "expr." as prefix)
   #only 1 sample? that means it'll pop up as a numeric class, 
   #not a matrix. re-set indices.
   
-  if(class(out)=="numeric"){
+  if(is.numeric(out)){
     
     #uggh so much workaround to keep row names for single columns!
     out <- as.matrix(out)
@@ -669,7 +815,7 @@ This function just removes any genes whose key is NA.")
     
     if (method == "average") {
       
-      out2 <- sapply(tmp, function(m) {
+      out2 <- vapply(tmp, function(m) {
         
         #odd bc if you run this code outside of sapply: 
         #it will have flipped indices for m.
@@ -679,7 +825,7 @@ This function just removes any genes whose key is NA.")
         
         #REMOVE LAST COLUMN: this is the key string character, 
         #not an expression value!! 
-        m <- m[, (1:dim(m)[2]-1) ]
+        m <- m[, seq_len(dim(m)[2] - 1) ]
         #just average across all duplicated probes (for each patient/column: 
         #want a new collapsed value for all duplicated keys, for each patient.)
         
@@ -696,7 +842,7 @@ This function just removes any genes whose key is NA.")
         #(not lumping patient expression values together)
         out2 <- colMeans(m,na.rm=TRUE)
         
-      })
+      }, FUN.VALUE = numeric(ncol(expr)))
       
       #sapply flips it - puts the keys as columns.
       
@@ -705,7 +851,7 @@ This function just removes any genes whose key is NA.")
       #...but then lose the row names...so make sure to add them back!
       
       
-      if(class(out2)=="numeric"){
+      if(is.numeric(out2)){
         
         out2 <- as.matrix(out2)
         
@@ -730,7 +876,7 @@ This function just removes any genes whose key is NA.")
         keyInd <- grep(rownames(out2)[1],multis$keys)
         #is mean of these rows (excluding last column - 
         #the key characters) as expected?
-        exprRows <- as.matrix(multis[keyInd,1:(dim(multis)[2]-1)])
+        exprRows <- as.matrix(multis[keyInd, seq_len(dim(multis)[2] - 1)])
         
         
         #if(dim(as.matrix(exprRows))[2]==1 && dim(as.matrix(out2))[1]>1){
@@ -770,7 +916,7 @@ returning the expected mean of rows of expression values for duplicated keys ")
         #1 gene's variance across all patients
         #REMOVE LAST COLUMN: this is the key string character, 
         #not an expression value!!
-        m <- m[, (1:dim(m)[2]-1) ]
+        m <- m[, seq_len(dim(m)[2] - 1) ]
         #make all numeric again so numbers don't end up weird!!
         m <- data.matrix(as.data.frame(m,stringsAsFactors=FALSE))
         #here, we want to look at the variance (diag of cov) of each 
@@ -814,7 +960,7 @@ returning the expected mean of rows of expression values for duplicated keys ")
         #be more duplicated ones.
         keyInd <- grep(rownames(out2)[1],multis$keys)
         #is the row chosen out of this subset as expected?
-        exprRows <- multis[keyInd,1:(dim(multis)[2]-1)]
+        exprRows <- multis[keyInd, seq_len(dim(multis)[2] - 1)]
         
         var <- diag(cov(t(exprRows),use=varMetric))
         
@@ -882,6 +1028,41 @@ returning the expected mean of rows of expression values for duplicated keys ")
 }
 
 #picks patient's sample that has the highest variance across all features.
+#' Remove duplicated patient samples (samples from the same patient/column ID)
+#'
+#' Function to keep only 1 sample per patient (column ID) in the data matrix.
+#' Keeps the sample that has the overall highest variance.
+#'
+#' @param exprMatrix Expression matrix, with features in the rows and samples in the columns.
+#' @param outputFile Output file for messages that print status of removing duplicated samples. Include full directory if file should not be printed to current working directory.
+#' @param varMetric Standard options taken from the base var() function. May be important if you have NA values in your data matrix; otherwise, "everything" is usually fine.
+#'
+#' @return exprMatrix:  the final data matrix with only 1 sample per patient ID.
+#'
+#' @author Katie Planey <katie.planey@@gmail.com>
+#' @note Suggestions are welcome for further ways to pick the best sample from samples
+#' from the same patient. No curatedBreastData matrices currently have samples
+#' that share the same patient ID, but this function is especially useful for
+#' say TCGA data, where this is often the case. 
+#' 
+#' It is suggseted one imputes missing values using the filterAndImpute function
+#' before running this function to avoid -Inf and NA values in the variance
+#' calculations.
+#' @examples
+#' #No curatedBreastData has duplicated samples, 
+#' #but we can still run this function on one of the datasets:
+#' #load up our datasets
+#' curatedBreastDataExprSetList <- getCuratedBreastDataExprSetList(test=TRUE)
+#' 
+#' #This dataset does not have NA values, which makes for a good example without
+#' #extra pre-processing.
+#' outputMatrix <- removeDuplicatedPatients(exprMatrix=
+#' exprs(curatedBreastDataExprSetList[[1]]), 
+#' outputFile = tempfile(), varMetric = c("everything"))
+#' #final dimensions - unchanged in this case with 
+#' #no samples sharing the same patient ID.
+#' dim(outputMatrix)
+#' @export
 removeDuplicatedPatients <- function(exprMatrix, 
                                      outputFile="duplicatedPatientsOutput.txt", 
                                     varMetric = c("everything", "all.obs",
@@ -897,7 +1078,7 @@ removeDuplicatedPatients <- function(exprMatrix,
   if(length(varMetric)>1){
     
     message("defaulting the everything variance metric.")
-    varMetric = c("everything")
+    varMetric <- c("everything")
     
   }
   nSamples <- ncol(exprMatrix)
@@ -929,7 +1110,7 @@ removeDuplicatedPatients <- function(exprMatrix,
     #why need the "which" in the for loop to grap all samples 
     #related to 1 patient.
     
-    for(d in 1:length(duplicated_patients)){
+    for(d in seq_along(duplicated_patients)){
       
       
       #how many NAs in each?
@@ -1005,6 +1186,59 @@ removeDuplicatedPatients <- function(exprMatrix,
 #if not using logged values, sometimes filtering by coeff of var is better.
 #to-do: replace missing() with each variance option as NULL to make running code 
 #in another function less cumbersome
+#' Filter genes by variance
+#'
+#' A function that filters genes by variance; it can simply threshold out genes
+#' that are above or below a certain magnitude of variance, filter out genes that
+#' fall outside of a minimum and maximum percentile, or simply select the top
+#' N varying genes.
+#'
+#' @param study A list, of minimally the gene expression or some molecular data matrix with keys (molecular features, such as genes) in the rows and patient samples in the columns and a keys list. In line with using this function for any type of molecular data, the exprIndex name, and also the keysIndex name, in the list can be altered.
+#' @param plotSaveDir If plotVarianceHist is TRUE, then the plotSaveDir is a character string specifying where this histogram plot should be saved.
+#' @param minVarPercentile Minimum variance percentile. Must be provided in conjunction with maxVarPercentile to use percentiles to threshold genes.
+#' @param maxVarPercentile Maximum variance percentile. Defaul is 1, i.e. 1\%. Must be provided in conjunction with minVarPercentile to use percentiles to threshold genes.
+#' @param maxVar If maxVar is provided, as opposed to minVarPercentile and maxVarPercentile, genes are removed that are above a certain variance magnitude. This may be useful if a user suspects very highly varying genes are actually technical noise/outliers. May be used in conjunction with minVar or in isolation.
+#' @param minVar If maxVar is provided, as opposed to minVarPercentile and maxVarPercentile, genes are removed that are below a certain variance magnitude. This is helpful before running certain algorithms, such as the popular Combat batch normalization technique, that can throw errors if genes with extremely low variances are in the data matrix. May be used in conjunction with maxVar or in isolation.
+#' @param exprIndex Character string. List slot name for the data matrix, presumably an expression matrix.
+#' @param keysIndex Character string. List slot name for the feature names, presumably probes or gene names.
+#' @param outputFile Output file for messages that print status of the filtering.  Include full directory if file should not be printed to current working directory.
+#' @param plotVarianceHist Plot the histogram of variances overall? Good for exploratory analyses to understand the distribution of variance across all data points. Default is FALSE to avoid saving a ggplot image for every function run.
+#' @param varMetric Standard options taken from the base var() function. May be important if you have NA values in your data matrix; otherwise, "everything" is usually fine.
+#' @param sampleCol Are samples in the columns of the expression matrix? If not, this function will first transpose the matrix, as the function assumes samples are in the columns features are in the rows.
+#' @param numTopVarGenes A numeric value indicating the number of genes (features) to select; the function will only take this number of genes that have the highest variance across all genes.
+#'
+#' @return A list:  output <- list(study=study,filteredStudy=filteredStudy,p=p);
+#' \item{study}{Original study list object}
+#' \item{filteredStudy}{filteredStudy object, i.e. the gene expression and keys only for the desired filtered keys/features.}
+#'
+#' @author Katie Planey <katie.planey@@gmail.com>
+#' @note Filtering by variance is equivalent to filtering on the coefficient of variation
+#' if data is logged.  Further work includes automatically allowing the user to use
+#' the coefficient of variation as opposed to baseline variation for a threshold.
+#' 
+#' It is highly suggested you use filterAndImputeSamples() beforehand to remove any
+#' NA values, to avoid -Inf or NA variance calculations.
+#' @examples
+#' #load up our datasets
+#' curatedBreastDataExprSetList <- getCuratedBreastDataExprSetList(test=TRUE)
+#' 
+#' #just perform on one dataset as an example, GSE1379. 
+#' #This dataset does not have NA values, which makes for a
+#' #good example without extra preprocessing.
+#' #highestVariance calculation make take a minute to run.
+#' #create study list object. 
+#' study <- list(expr=exprs(curatedBreastDataExprSetList[[1]]),
+#' keys=fData(curatedBreastDataExprSetList[[1]])[, "gene_symbol"])
+#' #take top 100 varying genes
+#' 
+#' filterGeneStudy <- filterGenesByVariance(study, exprIndex = "expr", 
+#' keysIndex = "keys", outputFile = tempfile(), 
+#' plotVarianceHist = FALSE,
+#' varMetric = c("everything"), sampleCol = TRUE, numTopVarGenes=100)
+#' 
+#' #names of output
+#' names(filterGeneStudy)
+#' @export
 filterGenesByVariance <- function(study, plotSaveDir="~/",minVarPercentile,
                                   maxVarPercentile=1,maxVar,minVar,
                                   exprIndex = "expr", keysIndex = "keys", 
@@ -1198,7 +1432,7 @@ filterGenesByVariance <- function(study, plotSaveDir="~/",minVarPercentile,
     #never sees the gene names, just the indices.
     if(length(geneVarSorted$ix)>= numTopVarGenes){
       
-      topGeneIndices <- geneVarSorted$ix[1:numTopVarGenes];
+      topGeneIndices <- geneVarSorted$ix[seq_len(numTopVarGenes)];
       
     }else{
       #just take the rest of the genes

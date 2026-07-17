@@ -1,13 +1,20 @@
 Package: curatedBreastData
 Type: Package
 Title: Curated breast cancer gene expression data with survival and treatment information
-Version: 2.40.0
-Date: 2016-10-26
-Author: Katie Planey
-Maintainer: Katie Planey <katie.planey@gmail.com>
-Depends: R (>= 3.0.0), XML, ggplot2, impute, Biobase, BiocStyle
-Imports: methods, stats
-biocViews: ExperimentData, ExpressionData, CancerData, Tissue, BreastCancerData, qPCRData, MicroarrayData, TissueMicroarrayData, GEO
+Version: 2.40.1
+Date: 2026-07-17
+Authors@R: c(
+    person("Katie", "Planey", role = "aut", comment = c(ORCID = "0000-0002-3482-1929")),
+    person("Levi", "Waldron", email = "lwaldron.research@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0003-2725-0694"))
+  )
+Depends: R (>= 4.6.0), XML, ggplot2, impute, Biobase, BiocStyle
+Imports: methods, stats, BiocFileCache, utils
+Suggests: testthat, roxygen2, knitr, rmarkdown
+VignetteBuilder: knitr
+biocViews: ExperimentData, ExpressionData, CancerData, Tissue, BreastCancerData, qPCRData, MicroarrayData, GEO, TissueMicroarrayData
+URL: https://waldronlab.io/curatedBreastData/
+BugReports: https://github.com/waldronlab/curatedBreastData/issues
 Description: Curated human breast cancer tissue S4 ExpresionSet datasets from over 16 clinical trials comprising over 2,000 patients. All datasets contain at least one type of outcomes variable and treatment information (minimum level: whether they had chemotherapy and whether they had hormonal therapy).  Includes code to post-process these datasets.
 License: GPL (>= 2)
 PackageStatus: Deprecated
+Config/roxygen2/version: 8.0.0
