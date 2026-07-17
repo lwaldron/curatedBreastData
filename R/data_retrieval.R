@@ -139,7 +139,8 @@ getClinicalData <- function(test = FALSE) {
 
     if (nrow(res) == 0) {
       message("Downloading curatedBreastData archive from Zenodo...")
-      rpath <- bfcadd(bfc, rname = archive_name, fpath = zenodo_url)
+      rid <- bfcadd(bfc, rname = archive_name, fpath = zenodo_url)
+      rpath <- bfcrpath(bfc, rids = rid)
     } else {
       rid <- as.character(res[, "rid"])[1]
       rpath <- bfcrpath(bfc, rids = rid)
