@@ -2,7 +2,7 @@
 
 ## SIGNIFICANT USER-VISIBLE CHANGES
 
-- Package data has been successfully offloaded to Zenodo (https://zenodo.org/records/14842512) and is no longer directly embedded in the package. The data is now dynamically retrieved and cached via `BiocFileCache`.
+- Package data has been successfully offloaded to Zenodo (https://zenodo.org/records/21415886) and is no longer directly embedded in the package. The data is now dynamically retrieved and cached via `BiocFileCache`.
 
 ## NEW FEATURES
 
