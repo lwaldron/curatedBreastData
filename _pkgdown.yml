@@ -1,0 +1,23 @@
+title: curatedBreastData
+url: https://waldronlab.io/curatedBreastData
+
+template:
+  bootstrap: 5
+  params:
+    bootswatch: flatly
+
+reference:
+  - title: Data Retrieval
+    desc: Functions to access the curated datasets
+    contents:
+      - getCuratedBreastDataExprSetList
+      - getClinicalData
+  - title: Data Processing
+    desc: Functions to post-process the datasets
+    contents:
+      - processExpressionSetList
+      - processExpressionSet
+      - filterAndImputeSamples
+      - filterGenesByVariance
+      - collapseDupProbes
+      - removeDuplicatedPatients
